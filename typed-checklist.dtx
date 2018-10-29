@@ -1,6 +1,6 @@
 % \iffalse meta-comment
 %
-% Copyright (C) 2013-2016 by Richard Gay <gay@mais.informatik.tu-darmstadt.de>
+% Copyright (C) 2013-2018 by Richard Grewe <r-g+tex@posteo.net>
 % -------------------------------------------------------
 % 
 % This file may be distributed and/or modified under the
@@ -22,7 +22,7 @@
 %<package>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package>\ProvidesPackage{typed-checklist}
 %<*package>
-    [2016/03/30 v1.4 A package for layouting checklists]
+    [2018/10/29 v1.5 A package for layouting checklists]
 %</package>
 %
 %<*driver>
@@ -44,7 +44,7 @@
 \usepackage{showexpl}
 \lstset{gobble=2,frame=trbl,backgroundcolor=\color{black!5!white}}
 \lstset{explpreset={numbers=none,columns=flexible,basicstyle=\footnotesize\ttfamily}}
-\lstset{preset={\small\sffamily},overhang=2cm,pos=r}
+\lstset{preset={\small\sffamily},overhang=0cm,pos=r}
 \usepackage{pbox}
 \newcommand\NiceDescribeStuff[2]{% #1=margin text, #2=body text
   \medskip\par\noindent\leavevmode%
@@ -123,7 +123,7 @@
 %   The package is available online at
 %   \url{http://www.ctan.org/pkg/typed-checklist} and
 %   \url{https://github.com/Ri-Ga/typed-checklist}.}}
-% \author{Richard Gay \\ \texttt{gay@mais.informatik.tu-darmstadt.de}}
+% \author{Richard Grewe \\ \texttt{r-g+tex@posteo.net}}
 %
 % \maketitle
 %
@@ -251,7 +251,7 @@
 %
 % The following example demonstrates a basic use of the package.
 %
-% \begin{LTXexample}
+% \begin{LTXexample}[width=0.414\hsize]
 % \documentclass{article}
 % \usepackage{typed-checklist}
 % \begin{document}
@@ -429,8 +429,8 @@
 % \subsection{Example}\label{sec:NestOptExample}
 % The following example shows the use of nested checklists and the use
 % of the options |layout|, |deadline|, |label|, and |who|. Note that
-% deadlines normally are displayed in the margin of the document, which
-% is not the case in this documentation.
+% deadlines are displayed in the margin of the document, which in this
+% documentation is outside the example box in this documentation.
 % \begin{LTXexample}[pos=t,preset=\FakeRefs]
 % \begin{CheckList}{Goal}
 %   \Goal[deadline=31.12.999]{achieved}{No Y1K problems}
@@ -866,8 +866,8 @@
 %    \end{macrocode}
 % Register the status symbol and ``isclosed''.
 %    \begin{macrocode}
-	\expandafter\def\csname tchklst@isclosed@#4@#1\endcsname{#2}%
-	\expandafter\def\csname tchklst@sym@#4@#1\endcsname{#3}}
+  \expandafter\def\csname tchklst@isclosed@#4@#1\endcsname{#2}%
+  \expandafter\def\csname tchklst@sym@#4@#1\endcsname{#3}}
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
@@ -1199,7 +1199,7 @@
 \CheckListAddType{Artifact}{{\large$\bigtriangleup$}}
 \CheckListAddType{Milestone}{\FiveStarOpen}
 %    \end{macrocode}
-% The following provides the default set of status possiblities.
+% The following provides the default set of status possibilities.
 % \changes{v1.3d}{2015/08/31}{Fixed symbol for dropped tasks}
 %    \begin{macrocode}
 \CheckListAddStatus{Goal,Task,Milestone}{open}{false}{}
@@ -1243,10 +1243,11 @@
 %   when end of environment is forgotten}
 % \changes{v1.3b}{2015/07/26}{Removed dependency on \textsf{paralist}
 %   package}
+% \changes{v1.5}{2018/10/29}{Improve left alignment of entry text in list layout}
 %    \begin{macrocode}
 \CheckListDeclareLayout{list}{status,label,description,who,deadline,END}%
   {\bgroup\topsep=\medskipamount\itemsep=0pt\description
-    \advance\itemindent by 0.5em}%
+    \advance\labelsep by-0.5em}%
   {\enddescription\egroup}
 %    \end{macrocode}
 % The checklist entry starts with the status symbol, which opens up a
@@ -1257,10 +1258,13 @@
 %    \end{macrocode}
 % Show the label in the reverse margin, with some nice layout.
 % \changes{v1.4}{2016/03/30}{Robustified label display in inner mode}
+% \changes{v1.5}{2018/10/29}{Raggedright for labels in case of a narrow list}
 %    \begin{macrocode}
 \CheckListDefineFieldFormat{list}{label}{%
   \ifstrempty{#1}{}{\ifbool{inner}%
-      {{\small(\ref{#1}) }}%
+      {\mbox{\small(\ref{#1})}%
+        \nobreak\hskip 0pt plus50pt\allowbreak
+        \ \hskip 0pt plus-50pt\relax}%
       {\leavevmode\reversemarginpar\marginpar{%
        \textcolor{gray}{\underbar{\hbox to \hsize{%
        \normalfont\textcolor{black}{\ref{#1}}\hfil}}}}}}}
@@ -1271,10 +1275,11 @@
     \ignorespaces #1\relax}
 %    \end{macrocode}
 % Show the responsible person(s), if the |who| option is given in
+% \changes{v1.5}{2018/10/29}{Add nobreak to `who' field in `list' layout}
 % \meta{options}.
 %    \begin{macrocode}
 \CheckListDefineFieldFormat{list}{who}{%
-  \ifstrempty{#1}{\hfill\null}{%
+  \ifstrempty{#1}{\nobreak\hfill\null}{%
     \tchklst@signed{\textit{(#1)}}}}
 %    \end{macrocode}
 % Show the deadline of the entry in the margin, if the |deadline| option
@@ -1337,6 +1342,7 @@
 % The |table| layout formats the checklist as a table, one row per
 % checklist entry. The |NC| field just inserts the column separator.
 % \changes{v1.4}{2016/03/30}{Added display of labels to table layout}
+% \changes{v1.5}{2018/10/29}{Raggedright for labels in case of narrow table display}
 %    \begin{macrocode}
 \RequirePackage{longtable,tabu}
 \CheckListDeclareLayout{table}%
@@ -1349,7 +1355,9 @@
   {\endlongtabu}
 \CheckListDefineFieldFormat{table}{status}{\tchklst@getsymbol{#1}}
 \CheckListDefineFieldFormat{table}{label}%
-  {\ifstrempty{#1}{}{{\small(\ref{#1}) }}}
+  {\ifstrempty{#1}{}{\mbox{\small(\ref{#1})}%
+     \nobreak\hskip 0pt plus50pt\allowbreak
+     \ \hskip 0pt plus-50pt\relax}}
 \CheckListDefineFieldFormat{table}{description}{\ignorespaces #1}
 \CheckListDefineFieldFormat{table}{deadline}{#1}
 \CheckListDefineFieldFormat{table}{who}{#1}
@@ -1369,7 +1377,7 @@
 %    \begin{macrocode}
 \iftchklst@withAsciilist
 \newcommand*\tchklst@ChkListEntry[2]{%
-	\tchklst@ChkListEntry@i{#1}#2\@undefined}
+  \tchklst@ChkListEntry@i{#1}#2\@undefined}
 %    \end{macrocode}
 % The used auxiliary macros serve the purpose of parsing the input and
 % have the following signatures:
@@ -1383,7 +1391,7 @@
 %    \begin{macrocode}
 \def\tchklst@ChkListEntry@ii#1#2#3[#4]#5\@undefined{#1[#4]{#3}{#2}}
 \def\tchklst@ChkListEntry@i#1#2:#3\@undefined{%
-	\tchklst@ChkListEntry@ii{#1}{#3}#2[]\@undefined}
+  \tchklst@ChkListEntry@ii{#1}{#3}#2[]\@undefined}
 \fi
 %    \end{macrocode}
 % \end{macro}
