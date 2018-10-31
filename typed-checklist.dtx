@@ -22,7 +22,7 @@
 %<package>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package>\ProvidesPackage{typed-checklist}
 %<*package>
-    [2018/10/29 v1.5 A package for layouting checklists]
+    [2018/10/31 v1.5b A package for layouting checklists]
 %</package>
 %
 %<*driver>
@@ -1244,11 +1244,11 @@
 % \changes{v1.3b}{2015/07/26}{Removed dependency on \textsf{paralist}
 %   package}
 % \changes{v1.5}{2018/10/29}{Improve left alignment of entry text in list layout}
+% \changes{v1.5b}{2018/10/31}{Fix for list layout (changed to itemize)}
 %    \begin{macrocode}
 \CheckListDeclareLayout{list}{status,label,description,who,deadline,END}%
-  {\bgroup\topsep=\medskipamount\itemsep=0pt\description
-    \advance\labelsep by-0.5em}%
-  {\enddescription\egroup}
+  {\bgroup\topsep=\medskipamount\itemsep=0pt\itemize}%
+  {\enditemize\egroup}
 %    \end{macrocode}
 % The checklist entry starts with the status symbol, which opens up a
 % new list item.
