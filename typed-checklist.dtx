@@ -22,7 +22,7 @@
 %<package>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package>\ProvidesPackage{typed-checklist}
 %<*package>
-    [2018/10/31 v1.5b A package for layouting checklists]
+    [2018/11/05 v1.5c A package for layouting checklists]
 %</package>
 %
 %<*driver>
@@ -1291,6 +1291,14 @@
 %    \begin{macrocode}
 \CheckListDefineFieldFormat{list}{deadline}{%
   \ifstrempty{#1}{}{{\normalmarginpar\marginnote{%
+%    \end{macrocode}
+% The following |\unskip| prevents |\marginnote| from breaking an
+% overfull margin text at it's very beginning, which meant that
+% the margin text would vertically be placed below the actual entry
+% (see also \url{https://tex.stackexchange.com/questions/117695/}).
+% \changes{v1.5c}{2018/11/05}{Fix vertical placement of deadlines in narrow margins}
+%    \begin{macrocode}
+     \unskip
      \tchklst@DisplayDeadline{\cmdtchklst@EntryOption@status}{#1}}}}}
 %    \end{macrocode}
 % End the display of one checklist entry.
