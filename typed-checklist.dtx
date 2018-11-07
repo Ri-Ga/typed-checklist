@@ -746,6 +746,8 @@
 % checklist type with name \meta{type} to the list of known
 % checklist types. The basic symbol of entries belonging to this
 % checklist type will be \meta{symbol} (e.g., an empty box or circle).
+% \changes{v1.6}{2018/11/07}{Switched from global entry counter
+%                            to per-type entry counters}
 %    \begin{macrocode}
 \newcommand*\CheckListAddType[2]{%
 %    \end{macrocode}
@@ -759,6 +761,14 @@
 % Save the symbol of the new type.
 %    \begin{macrocode}
   \expandafter\def\csname tchklst@ChecklistTypeSym@#1\endcsname{#2}%
+%    \end{macrocode}
+% Create a counter for labels of \meta{type} entries and define how
+% counter labels are displayed.
+%    \begin{macrocode}
+  \newcounter{tchklst@entryID@#1}%
+  \setcounter{tchklst@entryID@#1}{0}%
+  \csgdef{thetchklst@entryID@#1}{%
+    #1~\protect\textsc{\roman{tchklst@entryID@#1}}}%
 %    \end{macrocode}
 % Create an initially empty list of possible states that entries of the
 % type can have.
@@ -1096,7 +1106,7 @@
 % \meta{options}.
 %    \begin{macrocode}
   \ifx\cmdtchklst@EntryOption@label\empty\else
-    \refstepcounter{tchklst@entryID}%
+    \refstepcounter{tchklst@entryID@\tchklst@cur@type}%
     \expandafter\label\expandafter{\cmdtchklst@EntryOption@label}%
   \fi
 %    \end{macrocode}
@@ -1159,17 +1169,6 @@
 \def\tchklst@signed #1{{%
   \leavevmode\unskip\nobreak\hfil\penalty50\hskip0.25em
   \hbox{}\nobreak\dotfill\hbox{#1}}}
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}{tchklst@entryID}
-% We define a counter for the labels of checklist entries. We also
-% determine how counter values are displayed.
-%    \begin{macrocode}
-\newcounter{tchklst@entryID}
-\setcounter{tchklst@entryID}{0}
-\renewcommand*\thetchklst@entryID{%
-  \tchklst@cur@type~\protect\textsc{\roman{tchklst@entryID}}}
 %    \end{macrocode}
 % \end{macro}
 %
