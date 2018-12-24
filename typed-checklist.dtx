@@ -22,7 +22,7 @@
 %<package>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package>\ProvidesPackage{typed-checklist}
 %<*package>
-    [2018/11/27 v1.999 A package for layouting checklists]
+    [2018/12/24 v1.9999 A package for layouting checklists]
 %</package>
 %
 %<*driver>
@@ -300,7 +300,9 @@
 %       pre-defined `|list|', `|table|', `|hidden|'.
 %       In |list| layout, each entry is a list item.
 %       In |table| layout, each entry is a row and the checklist
-%       is a table. The |hidden| layout does not display the
+%       is a table (see Section~\ref{sec:tablepkg} for how to change
+%       which table environment is used).
+%       The |hidden| layout does not display the
 %       checklist and its entries.},
 %     default=list,
 %   }
@@ -779,6 +781,24 @@
 % is ended with a percent char (as in the above example).
 % Note also that the |table| layout does not work within an |AsciiList|
 % environment.
+%
+% \subsection{Table Packages (tabu or xltabular)}\label{sec:tablepkg}
+%
+% The |table| layout by default uses the \textsf{tabu} package for
+% layouting the tables. The default can be changed through the
+% |tablepkg| package option. The following values are available:
+% \begin{description}
+% \item[\texttt{tablepkg=tabu}:]
+%   This option uses the \textsf{tabu} package, which is the default.
+%   That is, specifying this option does not change the package
+%   behavior.
+% \item[\texttt{tablepkg=xltabular}:]
+%   This option uses the \textsf{xltabular} package.
+% \end{description}
+%
+% Note:
+% In the future, the default might change if the \textsf{tabu} package
+% remains unmaintained.
 %
 % \section{Related Packages}
 %
@@ -1873,16 +1893,14 @@
 % \changes{v1.5}{2018/10/29}{Raggedright for labels in case of narrow table display}
 % \changes{v2.0}{2018/11/26}{Made ``who'' column left-aligned in table layout}
 %    \begin{macrocode}
-\RequirePackage{longtable,tabu}
 \CheckListDeclareLayout{table}%
   {status,NC,label,description,NC,who,NC,deadline+status,endline}%
   {%
-    \tabulinesep=0.5ex
-    \longtabu to \linewidth {|c|X|l|r|}
+    \tchklst@@begintab
     \hline
     \textbf{Status} & \textbf{Description} &
     \textbf{Who} & \textbf{Deadline}\endhead\hline}
-  {\endlongtabu}
+  {\tchklst@@endtab}
 \CheckListDefineFieldFormat{table}{status}{\CheckListStatusSymbol{#1}}
 \CheckListDefineFieldFormat{table}{label}%
   {\ifstrempty{#1}{}{%
@@ -1897,6 +1915,41 @@
 \CheckListDefineFieldFormat{table}{NC}{&}
 \CheckListDefineFieldFormat{table}{endline}{\\\hline}
 %    \end{macrocode}
+% The following macros define the package-specific table code.
+% \begin{macro}{\tchklst@inittab@tabu}
+% \begin{macro}{\tchklst@begintab@tabu}
+% \begin{macro}{\tchklst@endtab@tabu}
+% The following three macros specify how the \textsf{tabu} package is
+% initialized (i.e., how the package is loaded) and how table
+% environments are started and, respectively, ended.
+%    \begin{macrocode}
+\newcommand\tchklst@inittab@tabu{%
+  \RequirePackage{longtable,tabu}}
+\newcommand\tchklst@begintab@tabu{%
+  \tabulinesep=0.5ex\relax
+  \longtabu to \linewidth {|c|X|l|r|}}
+\newcommand\tchklst@endtab@tabu{\endlongtabu}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \begin{macro}{\tchklst@inittab@xltabular}
+% \begin{macro}{\tchklst@begintab@xltabular}
+% \begin{macro}{\tchklst@endtab@xltabular}
+% The following three macros specify how the \textsf{xltabular} package
+% is initialized (i.e., how the package is loaded) and how table
+% environments are started and, respectively, ended.
+%    \begin{macrocode}
+\newcommand\tchklst@inittab@xltabular{%
+  \RequirePackage{array,xltabular}}
+\newcommand\tchklst@begintab@xltabular{%
+  \setlength{\extrarowheight}{0.5ex}%
+  \xltabular{\linewidth}{|c|X|l|r|}}
+\newcommand\tchklst@endtab@xltabular{\endxltabular}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
 %
 % \subsection{Package Options}
 %
@@ -1907,6 +1960,17 @@
 %    \begin{macrocode}
 \define@boolkey[tchklst]{PackageOptions}[tchklst@]
   {withAsciilist}[true]{}
+%    \end{macrocode}
+% The |tablepkg| option specifies which table package is used for
+% layouting checklists in the |table| layout.
+% \changes{v2.0}{2018/12/24}{Package option `tablepkg' added}
+%    \begin{macrocode}
+\define@choicekey[tchklst]{PackageOptions}{tablepkg}[\val]
+                 {tabu,xltabular}{%
+  \csuse{tchklst@inittab@\val}%
+  \letcs\tchklst@@begintab{tchklst@begintab@\val}%
+  \letcs\tchklst@@endtab{tchklst@endtab@\val}%
+}
 %    \end{macrocode}
 %
 % The |onecounter| option specifies whether a single counter
@@ -1923,6 +1987,7 @@
 %    \begin{macrocode}
 \ExecuteOptionsX[tchklst]<PackageOptions,GlobalListOptions>{%
   withAsciilist=false,
+  tablepkg=tabu,
   onecounter=true,
   layout=list,
   input-dates=d.m.y,
