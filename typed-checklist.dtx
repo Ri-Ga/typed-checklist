@@ -1667,7 +1667,11 @@
 % parse \meta{date}, in non-strict mode.
 %    \begin{macrocode}
 \newcommand\tchklst@DateFailStrict[1]{%
-  \PackageError{typed-checklist}{date `#1' not understood}{}}
+  \PackageError{typed-checklist}
+    {date `#1' not understood}
+    {See the options `strict-dates' and `input-dates'
+    in the package documentation\MessageBreak
+    if you intend to keep the value `#1'.}}
 \newcommand\tchklst@DateFailLax[1]{\textit{#1}}
 %    \end{macrocode}
 % \end{macro}
