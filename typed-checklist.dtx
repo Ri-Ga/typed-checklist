@@ -22,7 +22,7 @@
 %<package>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package>\ProvidesPackage{typed-checklist}
 %<*package>
-    [2018/12/24 v1.9999 A package for layouting checklists]
+    [2018/12/29 v1.9999 A package for layouting checklists]
 %</package>
 %
 %<*driver>
@@ -40,18 +40,22 @@
 \makeatother
 \usepackage{keyvaltable}
 \kvtSet{headbg=black!10,rowbg=white..black!5}
-\NewKeyValTable{ListOptions}{%
+\NewKeyValTable{KeyDesc}{%
   key:  align=l,    format=\texttt, head=\textbf{Key};
   desc: align=X,    head=\textbf{Description and Possible Values};
   default: align=l, format=\texttt, head=\textbf{Default};
 }
-\setlength{\tabulinesep}{0.75ex}
-\newcolumntype{C}{>{\normalfont\ttfamily}l<{}}% codelike
+% for describing possible values
+\NewKeyValTable[showhead=false]{ValDesc}{%
+  val:  align=l,    format=\texttt, head=\textbf{Value};
+  desc: align=X,                    head=\textbf{Description};
+}
 \setlist[description]{style=nextline}
 \usepackage{showexpl}
 \lstset{gobble=2,frame=trbl,backgroundcolor=\color{black!5!white}}
 \lstset{explpreset={numbers=none,columns=flexible,basicstyle=\footnotesize\ttfamily}}
 \lstset{preset={\small\sffamily},overhang=0cm,pos=r}
+\lstset{captionpos=b}
 \usepackage[lighttt]{lmodern}% for boldface typewriter
 \usepackage{pbox}
 \newcommand\NiceDescribeStuff[2]{% #1=margin text, #2=body text
@@ -65,11 +69,15 @@
     \textcolor{gray}{\cs{end}}\string{#1\string}}{#2}}
 \newcommand\NiceDescribeMacro[2]{% #1=macro, #2=parameters
   \NiceDescribeStuff{\hbox to 0pt{\hss\string#1}}{#2}}
+% \env is the counterpart for \cs for environment names
+\newcommand\env[1]{\texttt{#1}}
 \usepackage{skull}
 \newcommand\Good{\dotfill\enspace\Checkmark\smallskip\break}
 \newcommand\Evil{\dotfill\enspace$\skull$\smallskip\break}
 \usepackage[withAsciilist=true]{typed-checklist}
+\usepackage{varioref}
 \usepackage{hypdoc}
+\usepackage[capitalise,noabbrev,nameinlink]{cleveref}
 % The following macro simulates labels and references, assuming
 % labels are only referenced after they have been defined. This
 % is used in LTXexample environments, in which the normal label
@@ -170,7 +178,7 @@
 % then only contain entries of this type.
 %
 % While the package allows one to define custom checklist types (see
-% Section~\ref{sec:customizing}), it comes with four basic types:
+% \cref{sec:customizing}), it comes with four basic types:
 % |Artifact|, |Goal|, |Milestone|, and |Task|. In this documentation,
 % the terms \enquote{artifact}, \enquote{goal}, \enquote{milestone}, and
 % \enquote{task} will be used along the lines of the following
@@ -184,7 +192,7 @@
 %   \begin{Dict}
 %   \item\textquote[\href{http://www.businessdictionary.com/definition/goal.html}{BusinessDictionary.com}]{An observable and measurable \hl{end result} having one or more objectives to be achieved within a more or less fixed timeframe.}
 %   \item\textquote[\href{http://www.merriam-webster.com/dictionary/goal}{Merriam-Webster}]{the \hl{end} toward which effort is directed}
-%   \item\textquote[\href{http://www.oxforddictionaries.com/de/definition/englisch_usa/goal?q=Goal}{Oxford Dictionaries}]{The object of a person’s ambition or effort; an aim or desired \hl{result}}
+%   \item\textquote[\href{http://www.oxforddictionaries.com/de/definition/englisch_usa/goal?q=Goal}{Oxford Dictionaries}]{The object of a person's ambition or effort; an aim or desired \hl{result}}
 %   \item\textquote[\href{https://en.wiktionary.org/wiki/goal}{Wiktionary}]{A \hl{result} that one is attempting to achieve.}
 %   \end{Dict}
 % \item[milestone:]
@@ -194,7 +202,7 @@
 % \item[task:]
 %   \begin{Dict}
 %   \item\textquote[\href{http://www.merriam-webster.com/dictionary/task}{Merriam-Webster}]{a usually assigned \hl{piece of work} often to be finished within a certain time}
-%   \item\textquote[\href{https://en.wiktionary.org/wiki/task}{Wiktionary}]{A \hl{piece of work} done as part of one’s duties.}
+%   \item\textquote[\href{https://en.wiktionary.org/wiki/task}{Wiktionary}]{A \hl{piece of work} done as part of one's duties.}
 %   \end{Dict}
 % \end{description}
 % We could connect the four terms as follows.
@@ -292,49 +300,64 @@
 % With this macro, the entries of the checklist can be created.
 %
 % The \meta{options} can be a comma-separated list of
-% \meta{key}|=|\meta{value} pairs. The following keys can be set.
-%
-% \begin{KeyValTable}{ListOptions}
-%   \Row{key =layout,
-%     desc   ={This selects the default checklist layout.
-%       Allowed values are all known layout names, including the
-%       pre-defined `|list|', `|table|', `|hidden|'.
-%       In |list| layout, each entry is a list item.
-%       In |table| layout, each entry is a row and the checklist
-%       is a table (see Section~\ref{sec:tablepkg} for how to change
-%       which table environment is used).
-%       The |hidden| layout does not display the
-%       checklist and its entries.},
-%     default=list,
-%   }
-%   \Row{key =input-dates,
-%     desc   ={This option specifies the format of deadlines
-%       that checklist entries expect. Allowed values are
-%       `|d.m.y|', `|m/d/y|', and `|y-m-d|' -- with the
-%       intuitive meaning.},
-%     default=d.m.y,
-%   }
-%   \Row{key =output-dates,
-%     desc   ={This option specifies the format in which
-%       deadline dates are displayed. Allowed values are
-%       `|d.m.y|', `|m/d/y|', `|y-m-d|', `|same|' and `|datetime|'.
-%       The first three format dates in the indicated order
-%       of day, month, and year.
-%       With |same|, deadlines are output in the same format
-%       in which they are specified.
-%       With |datetime|, the \textsf{datetime2} package is
-%       used for displaying deadlines (the package must be
-%       loaded manually).},
-%     default=same,
-%   }
-%   \Row{key =strict-dates,
-%     desc   ={This option specifies whether deadlines must
-%       adhere to the input date format (as specified via
-%       the |input-dates| key) or can deviate.
-%       Allowed values are `|true|' and `|false|'.},
-%     default=false,
-%   }
-% \end{KeyValTable}
+% \meta{key}|=|\meta{value} pairs. \Vref{tab:CheckListOptions} shows the
+% keys and possible values that can be set.
+% \begin{table}
+%   \begin{KeyValTable}{KeyDesc}
+%     \Row{key =layout,
+%       desc   ={This selects the default checklist layout.
+%         Allowed values are all known layout names, including the
+%         pre-defined `|list|', `|table|', `|hidden|'.
+%         In |list| layout, each entry is a list item.
+%         In |table| layout, each entry is a row and the checklist
+%         is a table (see \cref{sec:tablepkg} for how to change
+%         which table environment is used).
+%         The |hidden| layout does not display the
+%         checklist and its entries.},
+%       default=list,
+%     }
+%     \Row{key =input-dates,
+%       desc   ={This option specifies the format of deadlines
+%         that checklist entries expect. Allowed values are
+%         `|d.m.y|', `|m/d/y|', and `|y-m-d|' -- with the
+%         intuitive meaning.},
+%       default=d.m.y,
+%     }
+%     \Row{key =output-dates,
+%       desc   ={This option specifies the format in which
+%         deadline dates are displayed. Allowed values are:
+%         \begin{description}[style=standard,font=\normalfont,nosep]
+%         \item[`|d.m.y|', `|m/d/y|', `|y-m-d|':]
+%           These format dates in the indicated order of day, month, and
+%           year.
+%         \item[`|d.m.yy|', `|m/d/yy|', `|yy-m-d|':]
+%           These are analogous to their counterparts with a single `y',
+%           but use a two-digit display of the year (i.e., the century is
+%           stripped away).
+%         \item[`|d.m.|', `|m/d|', `|m-d|':]
+%           These format dates in the indicated order, showing only month
+%           and day of the month.
+%         \item[`|same|':]
+%           With |same|, deadlines are output in the same format
+%           in which they are specified.
+%         \item[`|datetime|':]
+%           With |datetime|, the \textsf{datetime2} package is
+%           used for displaying deadlines. The package must be
+%           loaded manually.
+%         \end{description}},
+%       default=same,
+%     }
+%     \Row{key =strict-dates,
+%       desc   ={This option specifies whether deadlines must
+%         adhere to the input date format (as specified via
+%         the |input-dates| key) or can deviate.
+%         Allowed values are `|true|' and `|false|'.},
+%       default=false,
+%     }
+%   \end{KeyValTable}
+%   \caption{Options for \env{CheckList} environments (and \cs{CheckListSet})}
+%   \label{tab:CheckListOptions}
+% \end{table}
 %
 % Defaults for checklist options can also be specified globally,
 % either through package options or through the |\CheckListSet|
@@ -359,48 +382,49 @@
 % sentences tend to be less clear.}. The \meta{status}
 % parameter selects the most recent known status of the goal. This
 % parameter can assume any of the following values\footnote{See
-% Section~\ref{sec:AddingStates} to find out how custom states can be
+% \cref{sec:AddingStates} to find out how custom states can be
 % defined}:
-% \begin{longtabu}{@{}CX@{}}
-% achieved &
-%   This value specifies that the goal has been achieved. Depending on
-%   how the \meta{description} was formulated, this might mean that in
-%   the respective situation the \meta{description} is a true
-%   statement.\\
-% dropped &
-%   This value specifies that the goal was a goal once but is no longer
-%   a goal that shall be pursued. This value allows one to preserve
-%   historical information about a checklist.\\
-% unclear &
-%   This value specifies that the goal somehow exists but is not yet
-%   clear enough to those who pursue the goal (or: who typeset the
-%   checklist) for actually pursuing the goal.\\
-% open &
-%   This value specifies the negation of all aforementioned values. That
-%   is, the goal is clear but neither achieved yet nor dropped.\\
-% \end{longtabu}
+% \begin{KeyValTable}{ValDesc}
+% \Row{val=achieved,
+%   desc={This value specifies that the goal has been achieved.
+%     Depending on how the \meta{description} was formulated, this might
+%     mean that in the respective situation the \meta{description} is a
+%     true statement.}}
+% \Row{val=dropped,
+%   desc={This value specifies that the goal was a goal once but is no
+%     longer a goal that shall be pursued. This value allows one to
+%     preserve historical information about a checklist.}}
+% \Row{val=unclear,
+%   desc={This value specifies that the goal somehow exists but is not yet
+%     clear enough to those who pursue the goal (or: who typeset the
+%     checklist) for actually pursuing the goal.}}
+% \Row{val=open,
+%   desc={This value specifies the negation of all aforementioned values. That
+%     is, the goal is clear but neither achieved yet nor dropped.}}
+% \end{KeyValTable}
 % The \meta{options}\label{EntryOptions} allow one to specify further
 % details about the goal. The \meta{options} must be a possibly empty,
 % comma-separated list of \meta{key}|=|\meta{value} pairs. The
 % \meta{key} must be one of the following values\footnote{See
-% Section~\ref{sec:AddingEntryKeys} to find out how custom \meta{key}s
+% \cref{sec:AddingEntryKeys} to find out how custom \meta{key}s
 % can be defined.}:
-% \begin{longtabu}{@{}CX@{}}
-% who &
-%   This option declares who is responsible for making sure the
-%   checklist entry is addressed. Remember to put the value in curly
-%   braces if it contains commas.\\
-% deadline &
-%   This option declares a deadline for the checklist entry, i.e., a date
-%   until which the entry must be addressed at latest. The format for
-%   specifying deadlines is determined by the checklist options
-%   |input-dates| and |strict-dates|.\\
-% label &
-%   This option declares a label name for the checklist entry. This is
-%   analogous to the \cs{label} macro of \LaTeX. The entry's label is
-%   displayed next to the entry. A reference to a labeled checklist
-%   entry can be made using the \cs{ref} macro of \LaTeX{}.\\
-% \end{longtabu}
+% \begin{KeyValTable}{ValDesc}
+% \Row{val=who,
+%   desc={This option declares who is responsible for making sure the
+%     checklist entry is addressed. Remember to put the value in curly
+%     braces if it contains commas.}}
+% \Row{val=deadline,
+%   desc={This option declares a deadline for the checklist entry, i.e.,
+%     a date until which the entry must be addressed at latest. The format
+%     for specifying deadlines is determined by the checklist options
+%     |input-dates| and |strict-dates|.}}
+% \Row{val=label,
+%   desc={This option declares a label name for the checklist entry.
+%     This is analogous to the \cs{label} macro of \LaTeX. The entry's
+%     label is displayed next to the entry. A reference to a labeled
+%     checklist entry can be made using the \cs{ref} macro of
+%     \LaTeX{}.}}
+% \end{KeyValTable}
 %
 % \NiceDescribeMacro{\Task}{\oarg{options}\marg{status}\marg{description}}
 % Inside a checklist of type |Task|, the |\Task| macro specifies a task.
@@ -411,31 +435,32 @@
 % clear description of a task in a full sentence, possibly in imperative
 % form\footnote{For a \meta{description} in imperative form, the
 % \texttt{who} option can be used to specify who is addressed by the
-% \meta{description}.}. The \meta{status} parameter selects the most
-% recent known status of the task. This parameter can assume any of the
-% following values:
-% \begin{longtabu}{@{}CX@{}}
-% open &
-%   This value specifies that the task is still planned but has not
-%   yet been started.\\
-% dropped &
-%   This value specifies that the task was originally planned but is
-%   no longer part of the plan.\\
-% unclear &
-%   This value specifies that the task itself or its current status is
-%   unclear.\\
-% started &
-%   This value specifies that someone has started to perform the task,
-%   but has not finished yet.\\
-% done &
-%   This value specifies that someone has accomplished the task.
-%   Depending on the clarity and level of detail of the
-%   \meta{description}, whether accomplishing the task yielded a
-%   meaningful outcome might be more or less subjective to the person
-%   who accomplished the task.\\
-% \end{longtabu}
+% \meta{description}.}.
 % The \meta{options} parameter can be set as documented for the
 % |\Goal| macro on page~\pageref{EntryOptions}.
+% The \meta{status} parameter selects the most
+% recent known status of the task. This parameter can assume any of the
+% following values:
+% \begin{KeyValTable}{ValDesc}
+% \Row{val=open,
+%   desc={This value specifies that the task is still planned but has
+%     not yet been started.}}
+% \Row{val=dropped,
+%   desc={This value specifies that the task was originally planned but
+%     is no longer part of the plan.}}
+% \Row{val=unclear,
+%   desc={This value specifies that the task itself or its current
+%     status is unclear.}}
+% \Row{val=started,
+%   desc={This value specifies that someone has started to perform the
+%     task, but has not finished yet.}}
+% \Row{val=done,
+%   desc={This value specifies that someone has accomplished the task.
+%     Depending on the clarity and level of detail of the
+%     \meta{description}, whether accomplishing the task yielded a
+%     meaningful outcome might be more or less subjective to the person
+%     who accomplished the task.}}
+% \end{KeyValTable}
 %
 % \NiceDescribeMacro{\Artifact}{\oarg{options}\marg{status}\marg{description}}
 % Inside a checklist of type |Artifact|, the |\Artifact| macro specifies
@@ -447,22 +472,22 @@
 % clear identification of the artifact and its required attributes.
 % The \meta{status} parameter selects the most recent known status of
 % the artifact. This parameter can assume any of the following values:
-% \begin{longtabu}{@{}CX@{}}
-% missing &
-%   This value specifies that the artifact is missing yet.\\
-% dropped &
-%   This value specifies that the artifact was originally planned but
-%   is no longer part of the plan.\\
-% unclear &
-%   This value specifies that the artifact itself or its current
-%   status is unclear.\\
-% incomplete &
-%   This value specifies that some non-negligible parts of the
-%   artifact exist but the artifact does not yet exist in its final
-%   form\\
-% available &
-%   This value specifies that the artifact exists and available.\\
-% \end{longtabu}
+% \begin{KeyValTable}{ValDesc}
+% \Row{val=missing,
+%   desc={This value specifies that the artifact is missing yet.}}
+% \Row{val=dropped,
+%   desc={This value specifies that the artifact was originally planned
+%     but is no longer part of the plan.}}
+% \Row{val=unclear,
+%   desc={This value specifies that the artifact itself or its current
+%     status is unclear.}}
+% \Row{val=incomplete,
+%   desc={This value specifies that some non-negligible parts of the
+%     artifact exist but the artifact does not yet exist in its final
+%     form.}}
+% \Row{val=available,
+%   desc={This value specifies that the artifact exists and available.}}
+% \end{KeyValTable}
 %
 % \NiceDescribeMacro{\Milestone}{\oarg{options}\marg{status}\marg{description}}
 % Inside a checklist of type |Milestone|, the |\Milestone| macro
@@ -475,17 +500,18 @@
 % fulfilled.
 % The \meta{status} parameter selects the most recent known status of
 % the milestone. This parameter can assume any of the following values:
-% \begin{longtabu}{@{}CX@{}}
-% open &
-%   This value specifies that the milestone has not yet been achieved.\\
-% achieved &
-%   This value specifies that the milestone has been achieved.\\
-% \end{longtabu}
+% \begin{KeyValTable}{ValDesc}
+% \Row{val=open,
+%   desc={This value specifies that the milestone has not yet been achieved.}}
+% \Row{val=achieved,
+%   desc={This value specifies that the milestone has been achieved.}}
+% \end{KeyValTable}
 %
 % \subsection{Comprehensive Example}\label{sec:NestOptExample}
-% The following example shows the use of nested checklists and the use
-% of various checklist and entry options.
-% \begin{LTXexample}[pos=t,preset=\FakeRefs]
+% The example in \vref{lst:Comprehensive} shows the use of nested
+% checklists and the use of various checklist and entry options.
+% \begin{LTXexample}[float,caption={Comprehensive checklist example},
+%                    label=lst:Comprehensive,pos=t,preset=\FakeRefs]
 % \DTMsetregional% remember \usepackage{datetime2}
 % \CheckListSet{strict-dates,input-dates=d.m.y,output-dates=same}
 % \begin{CheckList}{Goal}
@@ -528,7 +554,7 @@
 % environment, is specified by \meta{type}.
 % The basic symbol of entries belonging to this checklist type will be
 % \meta{symbol} (e.g., an empty box or circle). All status-symbols (see
-% Section~\ref{sec:AddingStates}) are drawn on top of \meta{symbol}.
+% \cref{sec:AddingStates}) are drawn on top of \meta{symbol}.
 % Note that the \textsf{typed-checklist} package uses this macro also
 % for creating each of the four default checklist types.
 %
@@ -740,8 +766,8 @@
 % \NiceDescribeMacro{\CheckListFilterDeadline}{\oarg{types}\marg{comp}\marg{date}\marg{filter-inv}}
 % This macro sets up a filter that filters out checklist entries by
 % their deadline. Only those entries are preserved whose deadline is
-% before (if \meta{comp}=$<$), equal (if \meta{comp}=$=$), or after (if
-% \meta{comp}=$>$) the given \meta{date}.
+% before (if \meta{comp} equals `$<$'), equal (if \meta{comp} equals
+% `$=$'), or after (if \meta{comp} equals `$>$') the given \meta{date}.
 % The \meta{date} \emph{must} be in the format selected for input dates (see
 % the |input-dates| option).
 % If \meta{filter-inv} is |true|, then checklist entries whose deadline
@@ -859,7 +885,7 @@
 % \textsf{typed-checklist} package provides a syntax for this when the
 % package is loaded with the |withAsciilist=true| option. The syntax
 % is illustrated with the following snippet, a transformed version of
-% the example in Section~\ref{sec:NestOptExample}:
+% the example in \cref{sec:NestOptExample}:
 % \begin{LTXexample}[pos=t,preset=\FakeRefs]
 % \usepackage[withAsciilist=true]{typed-checklist}
 % \begin{AsciiList}[GoalList,TaskList]{-,*}
@@ -1604,7 +1630,7 @@
 % defines a checklist entry with a given \meta{status}, a given
 % \meta{description}, and possibly particular \meta{options} (a
 % comma-separated list of key-value pairs). See
-% Section~\ref{sec:Impl-ChecklistEntryOptions} for the list of available
+% \cref{sec:Impl-ChecklistEntryOptions} for the list of available
 % options.
 %    \begin{macrocode}
 \newcommand\tchklst@entry[3][]{%
@@ -1910,6 +1936,19 @@
 \tchklst@registerdateoutputfmt{d.m.y}{#3.#2.#1}
 \tchklst@registerdateoutputfmt{m/d/y}{#2/#3/#1}
 \tchklst@registerdateoutputfmt{y-m-d}{#1-#2-#3}
+\tchklst@registerdateoutputfmt{d.m.}{#3.#2.}
+\tchklst@registerdateoutputfmt{m/d}{#2/#3}
+\tchklst@registerdateoutputfmt{m-d}{#2-#3}
+%    \end{macrocode}
+% The following |\numexpr|s looks a bit unfamiliar but it computes the
+% modulo, given that integer division rounds the result.
+%    \begin{macrocode}
+\tchklst@registerdateoutputfmt{d.m.yy}
+  {#3.#2.\the\numexpr #1-100*((#1-50)/100)\relax}
+\tchklst@registerdateoutputfmt{m/d/yy}
+  {#2/#3/\the\numexpr #1-100*((#1-50)/100)\relax}
+\tchklst@registerdateoutputfmt{yy-m-d}
+  {\the\numexpr #1-100*((#1-50)/100)\relax-#2-#3}
 %    \end{macrocode}
 %
 % \begin{macro}{\tchklst@DateFailLax}
