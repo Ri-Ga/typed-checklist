@@ -53,25 +53,12 @@ To build the documentation of the `typed-checklist` package,
 you additionally need the following classes and packages
 (including their dependencies):
 * ltxdoc
-* idxlayout
-* etoolbox
-* xcolor
+* rgltxdoc
 * soul
 * csquotes
-* enumitem
-* booktabs
-* showexpl
-* pbox
 * skull
-* hypdoc
-* xkeyval
-* etoolbox
-* xcolor
 * asciilist
-* bbding
-* marginnote
-* longtable
-* tabu
+* keyvaltable
 
 as well as
 * pdflatex

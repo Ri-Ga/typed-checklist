@@ -27,67 +27,22 @@
 %
 %<*driver>
 \documentclass{ltxdoc}
-\usepackage[columns=2]{idxlayout}
-\usepackage{etoolbox}
+\usepackage{rgltxdoc}
+% finetuning of rgltxdoc config
+\lstset{overhang=0cm}% this is to still have room for deadlines in margins
+% additional stuff
 \usepackage{soul}
 \usepackage{csquotes}
-\usepackage{enumitem}
-\usepackage[english]{babel}
 \usepackage{datetime2}
 \makeatletter
 \newlist{Dict}{itemize}{1}
 \setlist[Dict]{nosep,label={--},leftmargin=*,before*={\@minipagetrue}}
 \makeatother
-\usepackage{keyvaltable}
-\kvtSet{headbg=black!10,rowbg=white..black!5}
-\NewKeyValTable{KeyDesc}{%
-  key:  align=l,    format=\texttt, head=\textbf{Key};
-  desc: align=X,    head=\textbf{Description and Possible Values};
-  default: align=l, format=\texttt, head=\textbf{Default};
-}
-% for describing possible values
-\NewKeyValTable[showhead=false]{ValDesc}{%
-  val:  align=l,    format=\texttt, head=\textbf{Value};
-  desc: align=X,                    head=\textbf{Description};
-}
 \setlist[description]{style=nextline}
-\usepackage{showexpl}
-\lstset{gobble=2,frame=trbl,backgroundcolor=\color{black!5!white}}
-\lstset{explpreset={numbers=none,columns=flexible,basicstyle=\footnotesize\ttfamily}}
-\lstset{preset={\small\sffamily},overhang=0cm,pos=r}
-\lstset{captionpos=b}
-\usepackage[lighttt]{lmodern}% for boldface typewriter
-\usepackage{pbox}
-\newcommand\NiceDescribeStuff[2]{% #1=margin text, #2=body text
-  \medskip\par\noindent\leavevmode%
-  \marginpar{\hfill\pbox[t]{\marginparwidth}{\ttfamily #1}%
-    \hspace*{-\marginparsep}}%
-  \ifstrempty{#2}{}{#2\smallskip\\}}
-\newcommand\NiceDescribeEnv[2]{% #1=envname, #2=parameters
-  \NiceDescribeStuff{%
-    \textcolor{gray}{\cs{begin}}\string{#1\string}\\
-    \textcolor{gray}{\cs{end}}\string{#1\string}}{#2}}
-\newcommand\NiceDescribeMacro[2]{% #1=macro, #2=parameters
-  \NiceDescribeStuff{\hbox to 0pt{\hss\string#1}}{#2}}
-% \env is the counterpart for \cs for environment names
-\newcommand\env[1]{\texttt{#1}}
 \usepackage{skull}
 \newcommand\Good{\dotfill\enspace\Checkmark\smallskip\break}
 \newcommand\Evil{\dotfill\enspace$\skull$\smallskip\break}
 \usepackage[withAsciilist=true]{typed-checklist}
-\usepackage{varioref}
-\usepackage{hypdoc}
-\usepackage[capitalise,noabbrev,nameinlink]{cleveref}
-% The following macro simulates labels and references, assuming
-% labels are only referenced after they have been defined. This
-% is used in LTXexample environments, in which the normal label
-% and ref mechanism is otherwise disabled.
-\newcommand\FakeRefs{%
-  \def\ref##1{\csuse{fakelabel@##1}}%
-  \def\label##1{\global\csletcs{fakelabel@##1}{@currentlabel}}%
-  \let\marginpar=\origmarginpar
-}
-\let\origmarginpar=\marginpar
 \EnableCrossrefs
 \CodelineIndex
 \RecordChanges
@@ -127,15 +82,15 @@
 % \changes{v0.6}{2014/05/19}{Indication of closed checklist entries}
 % \changes{v1.0}{2014/08/22}{First documented version}
 % \changes{v1.1}{2014/08/23}{Added definable layouts}
-% \changes{v1.3}{2015/04/01}{Support for combining checklists with \textsf{asciilist}}
+% \changes{v1.3}{2015/04/01}{Support for combining checklists with \pkgname{asciilist}}
 %
 % \GetFileInfo{typed-checklist.dtx}
 %
 % \DoNotIndex{\newcommand,\newenvironment,\def,\gdef,\edef}
 %
 %
-% \title{The \textsf{typed-checklist} package\thanks{This document
-%   corresponds to \textsf{typed-checklist}~\fileversion, dated \filedate.
+% \title{The \pkgname{typed-checklist} package\thanks{This document
+%   corresponds to \pkgname{typed-checklist}~\fileversion, dated \filedate.
 %   The package is available online at
 %   \url{http://www.ctan.org/pkg/typed-checklist} and
 %   \url{https://github.com/Ri-Ga/typed-checklist}.}}
@@ -144,7 +99,7 @@
 % \maketitle
 %
 % \begin{abstract}
-% The main goal of the \textsf{typed-checklist} package is to provide
+% The main goal of the \pkgname{typed-checklist} package is to provide
 % means for typesetting checklists in a way that stipulates users to
 % explicitly distinguish checklists for goals, for tasks, for
 % artifacts, and for milestones -- i.e., the \emph{type} of checklist
@@ -213,12 +168,12 @@
 % available at some point in time. A milestone is a group of goals whose
 % achievement is of importance for something bigger.
 % These connections suggest that nesting different types of checklists
-% is reasonable -- and it is supported by the \textsf{typed-checklist}
+% is reasonable -- and it is supported by the \pkgname{typed-checklist}
 % package.
 %
 % \section{Recommendations for Structuring Checklists}
 %
-% The \textsf{typed-checklist} package allows checklists of different
+% The \pkgname{typed-checklist} package allows checklists of different
 % types as well as of identical types to be nested. That is, within a
 % checklist, another checklist can be placed. The following list
 % discusses some combinations of nested checklist types and provides
@@ -294,7 +249,7 @@
 % \NiceDescribeEnv{CheckList}{\oarg{options}\marg{type}}
 % Checklists are created via the |CheckList| environment.
 % The \meta{type} parameter determines the type of all checklist entries
-% in the environment. The \textsf{typed-checklist} package comes with
+% in the environment. The \pkgname{typed-checklist} package comes with
 % four predefined types: |Goal|, |Task|, |Artifact|, and |Milestone|.
 % Each of the types comes with a macro of the same name as the type.
 % With this macro, the entries of the checklist can be created.
@@ -341,7 +296,7 @@
 %           With |same|, deadlines are output in the same format
 %           in which they are specified.
 %         \item[`|datetime|':]
-%           With |datetime|, the \textsf{datetime2} package is
+%           With |datetime|, the \pkgname{datetime2} package is
 %           used for displaying deadlines. The package must be
 %           loaded manually.
 %         \end{description}},
@@ -422,7 +377,7 @@
 %   desc={This option declares a label name for the checklist entry.
 %     This is analogous to the \cs{label} macro of \LaTeX. The entry's
 %     label is displayed next to the entry. A reference to a labeled
-%     checklist entry can be made using the \cs{ref} macro of
+%     checklist entry can be made using the \cmd{\ref} macro of
 %     \LaTeX{}.}}
 % \end{KeyValTable}
 %
@@ -511,7 +466,7 @@
 % The example in \vref{lst:Comprehensive} shows the use of nested
 % checklists and the use of various checklist and entry options.
 % \begin{LTXexample}[float,caption={Comprehensive checklist example},
-%                    label=lst:Comprehensive,pos=t,preset=\FakeRefs]
+%                    label=lst:Comprehensive,pos=t]
 % \DTMsetregional% remember \usepackage{datetime2}
 % \CheckListSet{strict-dates,input-dates=d.m.y,output-dates=same}
 % \begin{CheckList}{Goal}
@@ -538,7 +493,7 @@
 %
 % \section{Customized Checklists}\label{sec:customizing}
 %
-% The \textsf{typed-checklist} package comes with a set of layouts,
+% The \pkgname{typed-checklist} package comes with a set of layouts,
 % checklist types, checklist entry states, and checklist entry
 % options. These together shall provide everything needed for
 % typesetting even checklists with complex structures. When the
@@ -555,7 +510,7 @@
 % The basic symbol of entries belonging to this checklist type will be
 % \meta{symbol} (e.g., an empty box or circle). All status-symbols (see
 % \cref{sec:AddingStates}) are drawn on top of \meta{symbol}.
-% Note that the \textsf{typed-checklist} package uses this macro also
+% Note that the \pkgname{typed-checklist} package uses this macro also
 % for creating each of the four default checklist types.
 %
 % \NiceDescribeMacro{\CheckListAddStatus}{\marg{types}\marg{status}\marg{isclosed}\marg{symbol}}
@@ -572,13 +527,13 @@
 % deadline of an entry with this status is passed. A value of |false|
 % for \meta{isclosed} indicates that the \meta{status} corresponds to
 % the entry not yet being closed.
-% Note that the \textsf{typed-checklist} package uses this macro also
+% Note that the \pkgname{typed-checklist} package uses this macro also
 % for creating the provided states of the four default checklist types.
 %
 % \paragraph{Example}
 % The following example shows how to define a `bug' type.
 %
-% \begin{LTXexample}[pos=t,preset={\setlist{nosep}}]
+% \begin{LTXexample}[pos=t,morepreset={\setlist{nosep}}]
 % \CheckListAddType{Bug}{\textcolor{lightgray}{\FourStar}}
 % \CheckListAddStatus{Bug}{new}{false}{\textcolor{red}{\FourStar}}
 % \CheckListAddStatus{Bug}{assigned}{false}{\textcolor{yellow!75!red}{\FourStar}}
@@ -668,7 +623,7 @@
 % \paragraph{Example}
 % The following example shows how to define an alternative list format.
 %
-% \begin{LTXexample}[pos=t,preset=\FakeRefs]
+% \begin{LTXexample}[pos=t]
 % \CheckListDeclareLayout{enumlist}{label,who,status,description+deadline+status}
 %   {\bgroup\topsep=\medskipamount\itemsep=0pt\enumerate}
 %   {\endenumerate\egroup}
@@ -731,7 +686,7 @@
 %
 % Filtering out certain checklist entries based on their properties can
 % help keeping the focus on the relevant entries.
-% For this purpose, \textsf{typed-checklist} allows one to specify
+% For this purpose, \pkgname{typed-checklist} allows one to specify
 % filtering code.
 %
 % \subsection{Setting Basic Filters}
@@ -879,14 +834,14 @@
 %
 % \subsection{asciilist}\label{sec:asciilist}
 %
-% The \textsf{typed-checklist} package can be combined with the
-% \textsf{asciilist} package in the sense that a checklist can be
+% The \pkgname{typed-checklist} package can be combined with the
+% \pkgname{asciilist} package in the sense that a checklist can be
 % defined within an |AsciiList| environment. The
-% \textsf{typed-checklist} package provides a syntax for this when the
+% \pkgname{typed-checklist} package provides a syntax for this when the
 % package is loaded with the |withAsciilist=true| option. The syntax
 % is illustrated with the following snippet, a transformed version of
 % the example in \cref{sec:NestOptExample}:
-% \begin{LTXexample}[pos=t,preset=\FakeRefs]
+% \begin{LTXexample}[pos=t]
 % \usepackage[withAsciilist=true]{typed-checklist}
 % \begin{AsciiList}[GoalList,TaskList]{-,*}
 %   - achieved[deadline=31.12.999]: No Y1K problems
@@ -909,57 +864,57 @@
 %
 % \subsection{Table Packages (tabu or xltabular)}\label{sec:tablepkg}
 %
-% The |table| layout by default uses the \textsf{tabu} package for
+% The |table| layout by default uses the \pkgname{tabu} package for
 % layouting the tables. The default can be changed through the
 % |tablepkg| package option. The following values are available:
-% \begin{description}
-% \item[\texttt{tablepkg=tabu}:]
-%   This option uses the \textsf{tabu} package, which is the default.
-%   That is, specifying this option does not change the package
-%   behavior.
-% \item[\texttt{tablepkg=xltabular}:]
-%   This option uses the \textsf{xltabular} package.
-% \end{description}
+% \begin{KeyValTable}{ValDesc}
+% \Row{val=tabu,
+%   desc={This option uses the \pkgname{tabu} package, which is the
+%     default. That is, specifying this option does not change the
+%     package behavior.}}
+% \Row{val=xltabular,
+%   desc={This option uses the \pkgname{xltabular} package.}}
+% \end{KeyValTable}
 %
 % Note:
-% In the future, the default might change if the \textsf{tabu} package
+% In the future, the default might change if the \pkgname{tabu} package
 % remains unmaintained.
 %
 % \section{Related Packages}
 %
 % The following \LaTeX{} packages provide related functionalities to
-% the \textsf{typed-checklist} package.
+% the \pkgname{typed-checklist} package.
 %
 % \begin{description}
-% \item[\textsf{todo}:]
+% \item[\pkgname{todo}:]
 %   The package allows for typesetting ``to-dos'', i.e., tasks in some
 %   sense, in a simple way with customizable display. The three main
-%   conceptual differences between \textsf{todo} and
-%   \textsf{typed-checklist} are:
+%   conceptual differences between \pkgname{todo} and
+%   \pkgname{typed-checklist} are:
 %   \begin{enumerate}
-%   \item \textsf{todo} does not distinguish between different types
+%   \item \pkgname{todo} does not distinguish between different types
 %     (such as goals and tasks);
-%   \item \textsf{todo} does not allow one to provide a status for a
+%   \item \pkgname{todo} does not allow one to provide a status for a
 %     to-do and rather assumes that done to-dos are simply removed from
 %     the document;
-%   \item \textsf{todo} aims at specifying tasks for the document into
-%     which the to-dos are placed, while \textsf{typed-checklist} aims at
+%   \item \pkgname{todo} aims at specifying tasks for the document into
+%     which the to-dos are placed, while \pkgname{typed-checklist} aims at
 %     typesetting checklists whose entries are for more general kinds of
 %     projects.
 %   \end{enumerate}
-% \item[\textsf{easy-todo}:]
-%   The package is similar in spirit to the \textsf{todo} package and
-%   shares the main differences to the \textsf{typed-checklist} package.
-% \item[\textsf{todonotes}:]
-%   The package is similar in spirit to \textsf{todo} and
-%   \textsf{easy-todo}, but provides more formatting options for the
+% \item[\pkgname{easy-todo}:]
+%   The package is similar in spirit to the \pkgname{todo} package and
+%   shares the main differences to the \pkgname{typed-checklist} package.
+% \item[\pkgname{todonotes}:]
+%   The package is similar in spirit to \pkgname{todo} and
+%   \pkgname{easy-todo}, but provides more formatting options for the
 %   to-dos.
-% \item[\textsf{pgfgantt}:]
+% \item[\pkgname{pgfgantt}:]
 %   The package allows one to create Gantt charts, i.e., graphical
 %   displays of activities and milestones with a focus on time frames.
 %   The package allows one to structure the activities into groups. In
 %   that sense, there are certain similarities between the packages. The
-%   main conceptual difference to \textsf{typed-checklist} is the form
+%   main conceptual difference to \pkgname{typed-checklist} is the form
 %   of presentation (time-centric Gantt chart vs. text-centric lists).
 % \end{description}
 %
@@ -977,7 +932,7 @@
 %   definitions of the standard checklist types.
 %   To improve the situation, the package could offer an option for
 %   disabling the definition of the standard checklist types. Concerning
-%   the symbols packages, \textsf{typed-checklist} could also reduce the
+%   the symbols packages, \pkgname{typed-checklist} could also reduce the
 %   set of used packages or even draw all symbols itself.
 % \item The package displays checklist entries in the ordering in which
 %   they are listed in the \LaTeX{} sources. Automatic sorting of
@@ -999,6 +954,7 @@
 %   \Goal{unclear}{unclear goal}
 %   \Goal{achieved}{achieved goal}
 % \end{CheckList}
+%
 % \paragraph{Tasks}
 % \begin{CheckList}{Task}
 %   \Task{open}{open task}
@@ -1007,6 +963,7 @@
 %   \Task{started}{started task}
 %   \Task{done}{done task}
 % \end{CheckList}
+%
 % \paragraph{Artifacts}
 % \begin{CheckList}{Artifact}
 %   \Artifact{missing}{missing artifact}
@@ -1015,6 +972,7 @@
 %   \Artifact{incomplete}{incomplete artifact}
 %   \Artifact{available}{available artifact}
 % \end{CheckList}
+%
 % \paragraph{Milestones}
 % \begin{CheckList}{Milestone}
 %   \Milestone{open}{open milestone}
@@ -1034,12 +992,12 @@
 %
 % \subsection{Basic Package Dependencies}
 %
-% We use the \textsf{xkeyval} package for declaring package options as
+% We use the \pkgname{xkeyval} package for declaring package options as
 % well as for option lists of entry types.
 %    \begin{macrocode}
 \RequirePackage{xkeyval}
 %    \end{macrocode}
-% We use the \textsf{etoolbox} package for simpler handling of lists.
+% We use the \pkgname{etoolbox} package for simpler handling of lists.
 %    \begin{macrocode}
 \RequirePackage{etoolbox}
 %    \end{macrocode}
@@ -1106,7 +1064,7 @@
 %
 % \begin{macro}{\CheckListSet}
 % The |\CheckListSet|\marg{options-list} sets global options for the
-% \textsf{typed-checklist} package.
+% \pkgname{typed-checklist} package.
 % \changes{v2.0}{2018/11/10}{Macro added}
 %    \begin{macrocode}
 \newcommand\CheckListSet[1]{%
@@ -1171,7 +1129,7 @@
 % \end{macro}
 %
 % \begin{macro}{\tchklst@@addtype@hooks}
-% This is an \textsf{etoolbox} list of single-argument macros for
+% This is an \pkgname{etoolbox} list of single-argument macros for
 % hooking into the registration of new checklist types.
 %    \begin{macrocode}
 \newcommand*\tchklst@@addtype@hooks{}
@@ -1807,14 +1765,15 @@
 % \end{macro}
 %
 % \begin{macro}{\CheckListDateCompare}
-% The |\CheckListDateCompare|\marg{date}\marg{comp}\marg{refdate}\marg{iftrue}\marg{iffalse}\marg{ifunknown}
+% The
+% |\CheckListDateCompare|\marg{date}\marg{comp}\marg{refdate}\marg{iftrue}\marg{iffalse}\marg{iffail}
 % macro compares \meta{date} against \meta{refdate} using the operator
 % \meta{comp}. The latter must be one of |<|, |=|, and |>|.
 % If the dates fulfill the comparison, the macro expands to
 % \meta{iftrue}. If the dates do not fulfill the comparison, the macro
 % expands to \meta{iffalse}. Finally, if one of \meta{date} and
 % \meta{refdate} are not recognized as dates, the macro expands to
-% \meta{ifunknown}.
+% \meta{iffail}.
 %    \begin{macrocode}
 \newcommand\CheckListDateCompare[6]{%
   \bgroup
@@ -1826,20 +1785,23 @@
 %
 % \begin{macro}{\tchklst@DateCompare}
 % The
-% |\tchklst@DateCompare|\marg{date}\marg{comp}\marg{refyear}\marg{refmonth}\marg{refday}\marg{iftrue}\marg{iffalse}\marg{ifunknown}
+% |\tchklst@DateCompare|\marg{date}\marg{comp}\marg{y}\marg{m}\marg{d}\marg{iftrue}\marg{iffalse}\marg{iffail}
 % macro is the internal counterpart to |\CheckListDateCompare|.
 % The difference is that the former expects \meta{refdate} to already be
-% parsed into \meta{refyear}, \meta{refmonth}, and \meta{refday}.
+% parsed into \meta{y}, \meta{m}, and \meta{d}.
 %    \begin{macrocode}
 \newcommand*\tchklst@DateCompare[8]{%
   \bgroup
   \def\do##1##2##3##4{\egroup
 %    \end{macrocode}
 % The actual comparsion between the dates is done via |\ifnum|.
-% Here, |\do|\marg{year}\marg{month}\marg{day}\marg{date} gets the
+% Here, the auxiliary macro
+% |\do|\marg{year}\marg{month}\marg{day}\marg{date} gets the
 % components of \meta{date} from |\CheckListParseDate|.
 %    \begin{macrocode}
-    \ifnum##1\two@digits{##2}\two@digits{##3}#2#3\two@digits{#4}\two@digits{#5}\relax
+    \ifnum##1\two@digits{##2}\two@digits{##3}%
+      #2%
+      #3\two@digits{#4}\two@digits{#5}\relax
     \expandafter\@firstoftwo
     \else\expandafter\@secondoftwo\fi{#6}{#7}}%
   \CheckListParseDate{#1}{\do}{\egroup#8}}
@@ -1884,7 +1846,7 @@
 % The |\tchklst@@InputDateFormats| and |\tchklst@@OutputDateFormats| macros
 % collect the list of known input date formats
 % and, respectively, output date formats.
-% Both are \textsf{etoolbox} lists.
+% Both are \pkgname{etoolbox} lists.
 % Initially, both lists are empty.
 %    \begin{macrocode}
 \newcommand*\tchklst@@InputDateFormats{}
@@ -2039,16 +2001,16 @@
 % \subsection{Default Checklist Types and States}
 %
 % We use some packages for the default symbols in the checklist.
-% \changes{v1.4}{2016/03/29}{Eliminated \textsf{MnSymbol} dependency}
-% \changes{v1.4}{2016/03/29}{Robustified use of \textsf{bbding} package}
+% \changes{v1.4}{2016/03/29}{Eliminated \pkgname{MnSymbol} dependency}
+% \changes{v1.4}{2016/03/29}{Robustified use of \pkgname{bbding} package}
 %    \begin{macrocode}
 \RequirePackage{bbding}
 %    \end{macrocode}
-% The following line makes sure that the \textsf{bbding} font is
+% The following line makes sure that the \pkgname{bbding} font is
 % actually loaded, by simply putting a particular symbol into a box and
 % then forgetting the box again (via the grouping). This addresses the
-% case that the \textsf{bbding} symbols are used inside an |\import*| or
-% |\subimport*| of the \textsf{import} package: In this case, the font
+% case that the \pkgname{bbding} symbols are used inside an |\import*| or
+% |\subimport*| of the \pkgname{import} package: In this case, the font
 % would be attempted to be loaded only inside the `import' and could
 % then no longer be found (producing ``No file Uding.fd'').
 %    \begin{macrocode}
@@ -2094,7 +2056,7 @@
 %
 % \subsubsection{list}
 %
-% We use the \textsf{marginnote} package to display deadlines in the |list|
+% We use the \pkgname{marginnote} package to display deadlines in the |list|
 % layout.
 %    \begin{macrocode}
 \RequirePackage{marginnote}
@@ -2104,7 +2066,7 @@
 % slightly modified vertical and horizontal spacing.
 % \changes{v1.1b}{2015/03/05}{Fix for more comprehensible error messages
 %   when end of environment is forgotten}
-% \changes{v1.3b}{2015/07/26}{Removed dependency on \textsf{paralist}
+% \changes{v1.3b}{2015/07/26}{Removed dependency on \pkgname{paralist}
 %   package}
 % \changes{v1.5}{2018/10/29}{Improve left alignment of entry text in list layout}
 % \changes{v1.5b}{2018/10/31}{Fix for list layout (changed to itemize)}
@@ -2214,7 +2176,7 @@
 % \begin{macro}{\tchklst@inittab@tabu}
 % \begin{macro}{\tchklst@begintab@tabu}
 % \begin{macro}{\tchklst@endtab@tabu}
-% The following three macros specify how the \textsf{tabu} package is
+% The following three macros specify how the \pkgname{tabu} package is
 % initialized (i.e., how the package is loaded) and how table
 % environments are started and, respectively, ended.
 %    \begin{macrocode}
@@ -2241,7 +2203,7 @@
 % \begin{macro}{\tchklst@inittab@xltabular}
 % \begin{macro}{\tchklst@begintab@xltabular}
 % \begin{macro}{\tchklst@endtab@xltabular}
-% The following three macros specify how the \textsf{xltabular} package
+% The following three macros specify how the \pkgname{xltabular} package
 % is initialized (i.e., how the package is loaded) and how table
 % environments are started and, respectively, ended.
 %    \begin{macrocode}
@@ -2263,7 +2225,7 @@
 % \subsubsection{Package-Only Options}
 %
 % The |withAsciilist| option enables support for the
-% \textsf{asciilist} package.
+% \pkgname{asciilist} package.
 %    \begin{macrocode}
 \define@boolkey[tchklst]{PackageOptions}[tchklst@]
   {withAsciilist}[true]{}
@@ -2357,7 +2319,7 @@
 %
 % \subsubsection{asciilist}
 %
-% If the package is loaded with \textsf{asciilist} support\ldots
+% If the package is loaded with \pkgname{asciilist} support\ldots
 %    \begin{macrocode}
 \iftchklst@withAsciilist
 %    \end{macrocode}
@@ -2370,7 +2332,7 @@
 % \begin{macro}{\tchklst@ChkListEntry}
 % The |\tchklst@ChkListEntry|\marg{item-macro}\marg{content} macro can be
 % used as a parameter to |\AsciiListEndArg| of the
-% \textsf{asciilist} package in order to allow for checklist
+% \pkgname{asciilist} package in order to allow for checklist
 % entries in an |AsciiList|.
 %    \begin{macrocode}
 \newcommand*\tchklst@ChkListEntry[2]{%
@@ -2392,10 +2354,10 @@
 % \end{macro}
 %
 % \begin{macro}{\tchklst@RegisterAsciiTypeEnv}
-% The |\tchklst@RegisterAsciiTypeEnv|\marg{type} registers an \textsf{asciilist}
+% The |\tchklst@RegisterAsciiTypeEnv|\marg{type} registers an \pkgname{asciilist}
 % environment for the given checklist \meta{type}.
 % \changes{v1.3c}{2015/08/24}{Enabled use of optional arguments for
-%                             \textsf{asciilist} environments}
+%                             \pkgname{asciilist} environments}
 %    \begin{macrocode}
 \newcommand*\tchklst@RegisterAsciiTypeEnv[1]{%
   \AsciiListRegisterEnv{#1List}%
