@@ -52,6 +52,7 @@
 \lstset{gobble=2,frame=trbl,backgroundcolor=\color{black!5!white}}
 \lstset{explpreset={numbers=none,columns=flexible,basicstyle=\footnotesize\ttfamily}}
 \lstset{preset={\small\sffamily},overhang=0cm,pos=r}
+\usepackage[lighttt]{lmodern}% for boldface typewriter
 \usepackage{pbox}
 \newcommand\NiceDescribeStuff[2]{% #1=margin text, #2=body text
   \medskip\par\noindent\leavevmode%
@@ -509,59 +510,6 @@
 % legibility.
 %
 %
-% \section{Filtering Checklists}\label{sec:filtering}
-%
-% Filtering out certain checklist entries based on their properties can
-% help keeping the focus on the relevant entries.
-% For this purpose, \textsf{typed-checklist} allows one to specify
-% filtering code.
-%
-% \NiceDescribeMacro{\CheckListSetFilter}{\marg{types}\marg{fields}\marg{filter-code}}
-% This macro sets up a filter for all checklists whose type is in the
-% comma-separated list \meta{types}. The filter applies to the fields in
-% the `+'-separated list of field names. The \meta{filter-code} may contain
-% as many positional parameters (|#1|, \ldots) as there are fields names
-% in \meta{fields}. When a checklist entry is about to be displayed, the
-% \meta{filter-code} is evaluated, obtaining as arguments the entry's
-% field values. By default (without any filter set up), all entries are
-% displayed. To disable the display of an entry, the \meta{filter-code}
-% can use |\togglefalse{display}|.
-%
-% \paragraph{Filtering out closed entries.}
-% The following example shows how to filter out closed goals and tasks.
-% A goal is closed if it is achieved or dropped;
-% a task is closed if it is done or dropped.
-% \begin{LTXexample}[pos=t]
-% \CheckListSetFilter{Goal,Task}{status}{%
-%   \CheckListIfClosed{#1}{\togglefalse{display}}{}}
-% \begin{CheckList}{Goal}
-%   \Goal{achieved}{Achieved goal: not displayed}
-%   \Goal{dropped}{Dropped goal: not displayed}
-%   \Goal{open}{Open goal: displayed}
-%     \begin{CheckList}{Task}
-%       \Task{started}{Task 1}
-%       \Task{done}{Filtered task}
-%     \end{CheckList}
-%   \Goal{open}{All-filtered task list}
-%     \begin{CheckList}{Task}
-%       \Task{done}{Filtered 1}
-%       \Task{dropped}{Filtered 2}
-%     \end{CheckList}
-% \end{CheckList}
-% \end{LTXexample}
-%
-% \paragraph{Filtering by name.}
-% The following example shows how to filter out only a particular
-% person's tasks.
-% \begin{LTXexample}[pos=t]
-% \CheckListSetFilter{Task}{who}{%
-%   \ifstrequal{#1}{Mary}{}{\togglefalse{display}}}
-% \begin{CheckList}{Task}
-%   \Task[who=John]{open}{John's task}
-%   \Task[who=Mary]{open}{Mary's task}
-% \end{CheckList}
-% \end{LTXexample}
-%
 % \section{Customized Checklists}\label{sec:customizing}
 %
 % The \textsf{typed-checklist} package comes with a set of layouts,
@@ -620,7 +568,7 @@
 % \end{LTXexample}
 %
 % \subsection{Defining Checklist Layouts}\label{sec:AddingEntryKeys}
-%
+% \lstset{morekeywords={CheckListDeclareLayout,CheckListDefineFieldFormat,CheckListExtendLayout}}
 % \NiceDescribeMacro{\CheckListDeclareLayout}{\marg{name}\marg{fields}\marg{begin}\marg{end}}
 % Using this macro, you can add a new checklist layout.
 % The \meta{begin} and \meta{end} part is similar to a
@@ -662,6 +610,7 @@
 %
 % \paragraph{Auxiliary Macros}
 % The following macros can be used in the definition of field formats.
+% \lstset{morekeywords={CheckListStatusSymbol,CheckListSigned,CheckListDefaultLabel,CheckListDisplayDeadline}}
 %
 % \NiceDescribeMacro{\CheckListStatusSymbol}{\marg{status}}
 % The macro expands to the defined symbol for the given \meta{status},
@@ -716,6 +665,7 @@
 % \end{LTXexample}
 %
 % \subsection{Adding Entry Options}
+% \lstset{morekeywords={CheckListAddEntryOption}}
 %
 % Checklist entries can be augmented by more than the default fields.
 % Values for these additional fields can be specified as entry options.
@@ -749,6 +699,155 @@
 %   \Task[priority=L]{started}{Unimportant task}
 % \end{CheckList}
 % \end{LTXexample}
+%
+%
+% \section{Filtering Checklists}\label{sec:filtering}
+%
+% Filtering out certain checklist entries based on their properties can
+% help keeping the focus on the relevant entries.
+% For this purpose, \textsf{typed-checklist} allows one to specify
+% filtering code.
+%
+% \subsection{Setting Basic Filters}
+%
+% \NiceDescribeMacro{\CheckListFilterClosed}{\oarg{types}}
+% This macro sets up a filter that \emph{hides} all checklist entries
+% whose status is closed.
+% Through the optional \meta{types} argument, a comma-separated list of
+% checklist types can be specified to which the filter shall be applied.
+% By default, the filter is applied to all defined checklist types.
+% \begin{LTXexample}[morekeywords=CheckListFilterClosed]
+% \CheckListFilterClosed
+% \begin{CheckList}{Task}
+%   \Task{open}{Open task}
+%   \Task{started}{Started task}
+%   \Task{done}{Done task}
+%   \Task{dropped}{Dropped task}
+% \end{CheckList}
+% \end{LTXexample}
+%
+% \NiceDescribeMacro{\CheckListFilterValue}{\oarg{types}\marg{field}\marg{value}}
+% This macro sets up a filter that \emph{hides} all checklist entries
+% whose \meta{field} has a value that is unequal \meta{value}.
+% \begin{LTXexample}[morekeywords=CheckListFilterValue]
+% \CheckListFilterValue{who}{John}
+% \begin{CheckList}{Task}
+%   \Task[who=John]{open}{John's task}
+%   \Task[who=Mary]{open}{Mary's task}
+% \end{CheckList}
+% \end{LTXexample}
+%
+% \NiceDescribeMacro{\CheckListFilterDeadline}{\oarg{types}\marg{comp}\marg{date}\marg{filter-inv}}
+% This macro sets up a filter that filters out checklist entries by
+% their deadline. Only those entries are preserved whose deadline is
+% before (if \meta{comp}=$<$), equal (if \meta{comp}=$=$), or after (if
+% \meta{comp}=$>$) the given \meta{date}.
+% The \meta{date} \emph{must} be in the format selected for input dates (see
+% the |input-dates| option).
+% If \meta{filter-inv} is |true|, then checklist entries whose deadline
+% does not obey the format for input dates are filtered out. Otherwise,
+% if \meta{filter-inv} is |false|, these checklist entries are not
+% filtered out.
+%
+% \begin{LTXexample}[pos=t,morekeywords={CheckListFilterDeadline}]
+% \CheckListFilterDeadline{<}{01.01.2019}{true}
+% \begin{CheckList}{Task}
+%   \Task[who=John,deadline=09.11.1989]{open}{John's task}
+%   \Task[who=Mary,deadline=01.01.2019]{open}{Mary's task}
+%   \Task[deadline=TBD]{open}{Other task (first time)}
+%
+%   \CheckListFilterDeadline{<}{01.01.2019}{false}
+%   \Task[deadline=TBD]{open}{Other task (second time)}
+% \end{CheckList}
+% \end{LTXexample}
+%
+% \subsection{Combining and Resetting Filters}
+%
+% When multiple filter macros are used, the filters are applied one
+% after another to each checklist entry until a filter filters out the
+% entry. Consequentially, all applied filters are combined
+% conjunctively, i.e., only those checklist entries are displayed that
+% satisfy all filters.
+%
+% When two filters are set up that affect the exact same fields of
+% checklist entries (of the same type), then only the last of these
+% filters becomes effective. The following example demonstrates this as
+% well as the conjunction of filters.
+% \begin{LTXexample}[width=0.414\hsize,morekeywords=CheckListFilterValue]
+% \CheckListFilterValue{who}{John}
+% \CheckListFilterValue[Task]{status}{done}
+% \CheckListFilterValue[Goal]{status}{achieved}
+% \CheckListFilterValue{who}{Mary}
+% \begin{CheckList}{Goal}
+%   \Goal[who=Mary]{achieved}{Mary's goal}
+%     \begin{CheckList}{Task}
+%       \Task[who=John]{done}{John's task}
+%       \Task[who=Mary]{done}{Mary's task}
+%       \Task[who=Mary]{open}{Mary's open task}
+%     \end{CheckList}
+% \end{CheckList}
+% \end{LTXexample}
+%
+% Filters are local to the \LaTeX{} group in which they are set up.
+% In particular, if a filter is set up inside an environment, then the
+% filter is no longer effective after the environment.
+% \begin{LTXexample}[width=0.414\hsize,morekeywords=CheckListFilterValue]
+% \begin{CheckList}{Goal}
+%   \Goal[who=Mary]{achieved}{Mary's goal}
+%     \begin{CheckList}{Task}
+%       \CheckListFilterValue{who}{Mary}
+%       \Task[who=Mary]{done}{Mary's task}
+%       \Task[who=John]{done}{John's task}
+%     \end{CheckList}
+%   \Goal[who=John]{achieved}{John's goal}
+% \end{CheckList}
+% \end{LTXexample}
+%
+% \NiceDescribeMacro{\CheckListFilterReset}{\oarg{types}}
+% This macro removes all filters. If \meta{types} are given, then only
+% the filters for the checklist types in the comma-separated
+% \meta{types} are removed.
+% \begin{LTXexample}[width=0.414\hsize,morekeywords={CheckListFilterValue,CheckListFilterReset}]
+% \CheckListFilterValue{who}{John}
+% \begin{CheckList}{Task}
+%   \Task[who=John]{open}{John's task (1)}
+%   \Task[who=Mary]{open}{Mary's task (1)}
+% \end{CheckList}
+% \CheckListFilterReset[Task]
+% \begin{CheckList}{Task}
+%   \Task[who=John]{open}{John's task (2)}
+%   \Task[who=Mary]{open}{Mary's task (2)}
+% \end{CheckList}
+% \begin{CheckList}{Goal}
+%   \Goal[who=Mary]{achieved}{Mary's goal (3)}
+%   \Goal[who=John]{achieved}{John's goal (3)}
+% \end{CheckList}
+% \end{LTXexample}
+%
+%
+% \subsection{The Generic Filter Interface}\label{sec:filter-generic}
+%
+% Filters can also be set up programmatically.
+%
+% \NiceDescribeMacro{\CheckListSetFilter}{\oarg{types}\marg{fields}\marg{filter-code}}
+% This macro sets up the \meta{filter-code} for a set of \meta{fields}.
+% The \meta{fields} must be given as a `+'-separated list of field
+% names, e.g., ``|status+who|''.
+% The \meta{filter-code} may contain as many positional parameters
+% (|#1|, \ldots) as there are fields names in \meta{fields}. When a
+% checklist entry is about to be displayed, the \meta{filter-code} is
+% evaluated, obtaining as arguments the entry's field values. By default
+% (without any filter set up), all entries are displayed. To disable the
+% display of an entry, the \meta{filter-code} can use
+% |\togglefalse{display}|.
+% If \meta{types} are given (as a comma-separated list), then the
+% \meta{filter-code} is applied only to checklists of a type in the
+% list.
+%
+% Examples for how to use the macro can be found in the implementation,
+% e.g., of the macros |\CheckListFilterClosed| and
+% |\CheckListFilterValue|.
+%
 %
 % \section{Checklists and Other Packages}
 %
@@ -1303,12 +1402,13 @@
   \def\do##1{\advance\@tempcnta by 1\relax}%
   \tchklst@dopsvlist{#2}%
 %    \end{macrocode}
-% Use the above number for determining the number of arguments
-% for the defined formatting macro, i.e., the number of positional
-% parameters permitted in \meta{code}.
+% Next, use the above number for determining the number of arguments
+% of the defined formatting macro, i.e., the number of positional
+% parameters permitted in \meta{code}. The macro is first |\undef|'d
+% such that |\newcommand| always succeeds.
 %    \begin{macrocode}
   \edef\do{\endgroup
-    \cslet{#1}{\relax}%
+    \csundef{#1}%
     \noexpand\newcommand\expandonce{\csname #1\endcsname}%
       [\the\@tempcnta]{\unexpanded{#3}}}%
   \do}
@@ -1318,7 +1418,7 @@
 % \begin{macro}{\tchklst@usefieldmacro}
 % The |\tchklst@usefieldmacro|\oarg{use-cmd}\marg{csname}\marg{fields}
 % macro takes the current values of the fields in the `+'-separated
-% \meta{fields} and applies them in order to \meta{csname}.
+% \meta{fields} and applies them in the given order to \meta{csname}.
 % This application is performed directly, if \meta{use-cmd} is left at
 % its default, or is otherwise provided as an argument to \meta{use-cmd}.
 %    \begin{macrocode}
@@ -1355,24 +1455,109 @@
 % \begin{macro}{\CheckListSetFilter}
 % \changes{v2.0}{2018/11/27}{Added customizable filtering feature}
 % \begin{macro}{\tchklst@SetFilter}
-% The |\CheckListSetFilter|\marg{types}\marg{fields}\marg{code} macro
+% The |\CheckListSetFilter|\oarg{types}\marg{fields}\marg{code} macro
 % defines a filter for the given \meta{fields} of all types in the
 % comma-separated list \meta{types}. The filtering code is \meta{code},
 % which may use positional parameters.
 %    \begin{macrocode}
-\newcommand*\CheckListSetFilter[3]{%
-  \forcsvlist{\tchklst@SetFilter{#2}{#3}}{#1}}
+\newcommand*\CheckListSetFilter[3][*]{%
+  \ifstrequal{#1}{*}
+    {\forlistloop{\tchklst@SetFilter{#2}{#3}}{\tchklst@ChecklistTypes}}
+    {\forcsvlist{\tchklst@SetFilter{#2}{#3}}{#1}}}
 %    \end{macrocode}
 % The |\tchklst@SetFilter|\marg{fields}\marg{code}\marg{type}
 % macro defines a filter for a single type.
 %    \begin{macrocode}
 \newcommand*\tchklst@SetFilter[3]{%
   \tchklst@CheckType{#3}%
-  \listcsadd{tchklst@ChecklistFilters@#3}{#1}%
+  \ifinlistcs{#1}{tchklst@ChecklistFilters@#3}{}
+    {\listcsadd{tchklst@ChecklistFilters@#3}{#1}}%
   \tchklst@deffieldmacro{tchklst@CheckListFilter@#3@#1}{#1}{#2}}
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
+%
+% \begin{macro}{\CheckListFilterValue}
+% The |\CheckListFilterValue|\oarg{types}\marg{field}\marg{value} macro
+% filters out all checklist entries whose \meta{field} is unequal
+% \meta{value}, by using an |\ifstrequal| comparison.
+%    \begin{macrocode}
+\newcommand*\CheckListFilterValue[3][*]{%
+  \CheckListSetFilter[#1]{#2}
+    {\ifstrequal{##1}{#3}{}{\togglefalse{display}}}}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\CheckListFilterClosed}
+% The |\CheckListFilterClosed|\oarg{types}\marg{field}\marg{value} macro
+% filters out all checklist entries whose status is closed,
+% by using |\CheckListIfClosed|.
+%    \begin{macrocode}
+\newcommand*\CheckListFilterClosed[1][*]{%
+  \CheckListSetFilter[#1]{status}
+    {\CheckListIfClosed{##1}{\togglefalse{display}}{}}}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\CheckListFilterDeadline}
+% The
+% |\CheckListFilterDeadline|\oarg{types}\marg{comp}\marg{refdate}\marg{filter-inv}
+% macro filters out all checklist entries whose deadline does not
+% satisfy the comparison against \meta{refdate} by operator \meta{comp}
+% (`$<$', `$=$', `$>$'). The argument \meta{filter-inv} must be either
+% |true| or |false| and specifies whether deadlines that do not match
+% the selected input deadline format are filtered out (|true|) or not
+% (|false|).
+%    \begin{macrocode}
+\newcommand*\CheckListFilterDeadline[4][*]{%
+%    \end{macrocode}
+% First, pre-parse \meta{refdate} such that it need not be parsed for
+% each checklist entry.
+%    \begin{macrocode}
+  \bgroup
+  \def\do##1##2##3##4{\egroup
+%    \end{macrocode}
+% Use the internal |\tchklst@DateCompare| macro to perform the date
+% comparison based on the pre-parsed date of the
+% |\do|\marg{year}\marg{month}\marg{day} macro arguments.
+%    \begin{macrocode}
+    \CheckListSetFilter[#1]{deadline}
+      {\tchklst@DateCompare{####1}{#2}{##1}{##2}{##3}
+        {}{\togglefalse{display}}
+        {\ifbool{#4}{\togglefalse{display}}{}\@gobble}}}
+  \CheckListParseDate{#3}{\do}
+%    \end{macrocode}
+% If parsing \meta{refdate} fails, we always fail like with strict input
+% date parsing: Setting up a filter with an invalid date would not make
+% sense.
+%    \begin{macrocode}
+    {\egroup\tchklst@DateFailStrict}}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\CheckListFilterReset}
+% The |\CheckListFilterReset|\oarg{types} macro resets the filters for
+% all checklist types in the comma-separated list \meta{types}. If
+% \meta{types} is omitted or equals `|*|', then the filters for all
+% checklist types are reset.
+%    \begin{macrocode}
+\newcommand*\CheckListFilterReset[1][*]{%
+  \ifstrequal{#1}{*}
+    {\forlistloop{\tchklst@ResetFilter}{\tchklst@ChecklistTypes}}
+    {\forcsvlist{\tchklst@ResetFilter}{#1}}}
+%    \end{macrocode}
+% \begin{macro}{\tchklst@ResetFilter}
+% The |\tchklst@ResetFilter|\marg{type} macro removes all filters (i.e.,
+% for all fields) from checklists of the given \meta{type}.
+%    \begin{macrocode}
+\newcommand*\tchklst@ResetFilter[1]{%
+  \def\do##1{\csundef{tchklst@CheckListFilter@#1@##1}}%
+  \dolistcsloop{tchklst@ChecklistFilters@#1}%
+  \csdef{tchklst@ChecklistFilters@#1}{}}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
 %
 % \subsection{Checklist and Entry Definition}
 %
@@ -1463,7 +1648,7 @@
     \def\do##1{%
       \tchklst@usefieldmacro[\appto\tchklst@@entry]
         {tchklst@ChecklistFormat@\tchklst@cur@layout @##1}{##1}}%
-    \dolistloop\tchklst@cur@fields}{}
+    \dolistloop\tchklst@cur@fields}{}%
   \tchklst@@entry}
 %    \end{macrocode}
 % \end{macro}
@@ -1501,30 +1686,28 @@
 % \changes{v2.0}{2018/11/10}{More flexibility for deadline parsing and
 %                            deadline printing}
 %    \begin{macrocode}
-  \expandafter\tchklst@splitapply@i\expandafter{\tchklst@inputdate@sep}
-    {#2}
-%    \end{macrocode}
-% Dates have three components and all must be positive numbers.
+  \CheckListParseDate{#2}{\tchklst@DisplayDeadline@i}
 %    \begin{macrocode}
-    {3}{\tchklst@ifPositive}
-%    \end{macrocode}
-% Before being provided to |\CheckListDisplayDeadline@i|, the components
-% of the date shall be reordered according to the selected input date.
-%    \begin{macrocode}
-    {\expandafter\tchklst@DisplayDeadline@i\tchklst@inputdate@order}
-    {\expandafter\tchklst@@faileddate\@gobble}
+    {\tchklst@firstoftwoargs\tchklst@@faileddate}
 %    \end{macrocode}
 % To each of the two former arguments (for successful and, respectively,
-% failed parsing of the deadline), apply \meta{status} and \meta{deadline}
-% as arguments.
+% failed parsing of the deadline), apply \meta{deadline}
+% as argument.
 %    \begin{macrocode}
-    {#1}{#2}}%
+    {#1}}
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\tchklst@firstoftwoargs}
+% The |\tchklst@firstoftwoargs|\marg{cmd}\marg{arg1}\marg{arg2} macro
+% applies \meta{cmd} to \meta{arg1} and gobbles \meta{arg2}.
+%    \begin{macrocode}
+\newcommand\tchklst@firstoftwoargs[3]{#1{#2}}
 %    \end{macrocode}
 % \end{macro}
 %
 % \begin{macro}{\tchklst@DisplayDeadline@i}
 % The
-% |\tchklst@DisplayDeadline@i|\marg{y}\marg{m}\marg{d}\marg{status}\marg{deadline}
+% |\tchklst@DisplayDeadline@i|\marg{y}\marg{m}\marg{d}\marg{deadline}\marg{status}
 % macro displays a given \meta{deadline} that is additionally decomposed
 % into year, month, and day given a particular \meta{status} of the
 % respective checklist entry.  The macro uses the chosen output date
@@ -1537,7 +1720,7 @@
 % |\CheckListHighlightDeadline|.
 %    \begin{macrocode}
   \def\tchklst@@args{}%
-  \CheckListIfClosed{#4}%
+  \CheckListIfClosed{#5}%
     {\appto\tchklst@@args{{true}}}{\appto\tchklst@@args{{false}}}%
   \tchklst@ifafter{#1}{#2}{#3}
     {\appto\tchklst@@args{{true}}}{\appto\tchklst@@args{{false}}}%
@@ -1546,7 +1729,7 @@
 % the highlighting to the result.
 %    \begin{macrocode}
   \expandafter\CheckListHighlightDeadline\tchklst@@args
-    {\tchklst@@dateoutput@use{#1}{#2}{#3}{#5}}}
+    {\tchklst@@dateoutput@use{#1}{#2}{#3}{#4}}}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1594,6 +1777,76 @@
   \else
     \expandafter\@secondoftwo
   \fi}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\CheckListDateCompare}
+% The |\CheckListDateCompare|\marg{date}\marg{comp}\marg{refdate}\marg{iftrue}\marg{iffalse}\marg{ifunknown}
+% macro compares \meta{date} against \meta{refdate} using the operator
+% \meta{comp}. The latter must be one of |<|, |=|, and |>|.
+% If the dates fulfill the comparison, the macro expands to
+% \meta{iftrue}. If the dates do not fulfill the comparison, the macro
+% expands to \meta{iffalse}. Finally, if one of \meta{date} and
+% \meta{refdate} are not recognized as dates, the macro expands to
+% \meta{ifunknown}.
+%    \begin{macrocode}
+\newcommand\CheckListDateCompare[6]{%
+  \bgroup
+  \def\do##1##2##3##4{\egroup
+    \tchklst@DateCompare{#1}{#2}{##1}{##2}{##3}{#4}{#5}{#6}}%
+  \CheckListParseDate{#3}{\do}{\egroup#6}}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\tchklst@DateCompare}
+% The
+% |\tchklst@DateCompare|\marg{date}\marg{comp}\marg{refyear}\marg{refmonth}\marg{refday}\marg{iftrue}\marg{iffalse}\marg{ifunknown}
+% macro is the internal counterpart to |\CheckListDateCompare|.
+% The difference is that the former expects \meta{refdate} to already be
+% parsed into \meta{refyear}, \meta{refmonth}, and \meta{refday}.
+%    \begin{macrocode}
+\newcommand*\tchklst@DateCompare[8]{%
+  \bgroup
+  \def\do##1##2##3##4{\egroup
+%    \end{macrocode}
+% The actual comparsion between the dates is done via |\ifnum|.
+% Here, |\do|\marg{year}\marg{month}\marg{day}\marg{date} gets the
+% components of \meta{date} from |\CheckListParseDate|.
+%    \begin{macrocode}
+    \ifnum##1\two@digits{##2}\two@digits{##3}#2#3\two@digits{#4}\two@digits{#5}\relax
+    \expandafter\@firstoftwo
+    \else\expandafter\@secondoftwo\fi{#6}{#7}}%
+  \CheckListParseDate{#1}{\do}{\egroup#8}}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\CheckListParseDate}
+% The |\CheckListParseDate|\marg{date}\marg{cmd}\marg{fail} macro
+% parses \meta{date} according to the selected date input format.
+% If the parsing succeeds, the macro expands
+% to \meta{cmd}\marg{year}\marg{month}\marg{day}\marg{date} (i.e.,
+% \meta{cmd} must take four arguments).
+% Otherwise, the macro expands to \meta{fail}\marg{date} (i.e.,
+% \meta{fail} must take one argument).
+%    \begin{macrocode}
+\newcommand\CheckListParseDate[3]{%
+  \expandafter\tchklst@splitapply@i\expandafter{\tchklst@inputdate@sep}
+    {#1}
+%    \end{macrocode}
+% Dates have three components and all must be positive numbers.
+%    \begin{macrocode}
+    {3}{\tchklst@ifPositive}
+%    \end{macrocode}
+% Before expanding to \meta{cmd}, reorder the parsed date components
+% according to the ordering of the selected date input format.
+%    \begin{macrocode}
+    {\expandafter#2\tchklst@inputdate@order}
+    {#3}
+%    \end{macrocode}
+% The following argument is applied to whichever of the two previous
+% arguments |\tchklst@splitapply@i| expands to.
+%    \begin{macrocode}
+    {#1}}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1898,13 +2151,13 @@
 % \changes{v2.0}{2018/11/26}{Made ``who'' column left-aligned in table layout}
 %    \begin{macrocode}
 \CheckListDeclareLayout{table}%
-  {status,NC,label,description,NC,who,NC,deadline+status,endline}%
+  {newline,status,NC,label,description,NC,who,NC,deadline+status}%
   {%
     \tchklst@@begintab
-    \hline
     \textbf{Status} & \textbf{Description} &
     \textbf{Who} & \textbf{Deadline}\endhead\hline}
   {\tchklst@@endtab}
+\CheckListDefineFieldFormat{table}{newline}{\tchklst@@newline}
 \CheckListDefineFieldFormat{table}{status}{\CheckListStatusSymbol{#1}}
 \CheckListDefineFieldFormat{table}{label}%
   {\ifstrempty{#1}{}{%
@@ -1917,7 +2170,6 @@
   \ifstrempty{#1}{}{\CheckListDisplayDeadline{#2}{#1}}}
 \CheckListDefineFieldFormat{table}{who}{#1}
 \CheckListDefineFieldFormat{table}{NC}{&}
-\CheckListDefineFieldFormat{table}{endline}{\\\hline}
 %    \end{macrocode}
 % The following macros define the package-specific table code.
 % \begin{macro}{\tchklst@inittab@tabu}
@@ -1931,8 +2183,18 @@
   \RequirePackage{longtable,tabu}}
 \newcommand\tchklst@begintab@tabu{%
   \tabulinesep=0.5ex\relax
-  \longtabu to \linewidth {|c|X|l|r|}}
-\newcommand\tchklst@endtab@tabu{\endlongtabu}
+  \longtabu to \linewidth {|c|X|l|r|}%
+  \hline
+%    \end{macrocode}
+% The |\tchklst@@newline| macro ensures that the |\\\hline| is only
+% produced after the first content row. Generally, |\tchklst@@newline|
+% (and the |newline| field) are used at the \emph{beginning} of each row
+% is due to checklist entry filters: This way of line breaking ensures
+% there is no spurious empty row at the end of tables whose last
+% checklist entry was filtered out.
+%    \begin{macrocode}
+  \gdef\tchklst@@newline{\gdef\tchklst@@newline{\\\hline}}}
+\newcommand\tchklst@endtab@tabu{\tchklst@@newline\endlongtabu}
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
@@ -1948,8 +2210,10 @@
   \RequirePackage{array,xltabular}}
 \newcommand\tchklst@begintab@xltabular{%
   \setlength{\extrarowheight}{0.5ex}%
-  \xltabular{\linewidth}{|c|X|l|r|}}
-\newcommand\tchklst@endtab@xltabular{\endxltabular}
+  \xltabular{\linewidth}{|c|X|l|r|}%
+  \hline
+  \gdef\tchklst@@newline{\gdef\tchklst@@newline{\\\hline}}}
+\newcommand\tchklst@endtab@xltabular{\tchklst@@newline\endxltabular}
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
@@ -1971,7 +2235,7 @@
 %    \begin{macrocode}
 \define@choicekey[tchklst]{PackageOptions}{tablepkg}[\val]
                  {tabu,xltabular}{%
-  \csuse{tchklst@inittab@\val}%
+  \letcs\tchklst@@inittab{tchklst@inittab@\val}%
   \letcs\tchklst@@begintab{tchklst@begintab@\val}%
   \letcs\tchklst@@endtab{tchklst@endtab@\val}%
 }
@@ -1999,6 +2263,7 @@
   strict-dates=false,
 }
 \ProcessOptionsX[tchklst]<PackageOptions,GlobalListOptions>\relax
+\tchklst@@inittab
 %    \end{macrocode}
 %
 % \subsubsection{Labels}
