@@ -1,6 +1,6 @@
 % \iffalse meta-comment
 %
-% Copyright (C) 2013-2018 by Richard Grewe <r-g+tex@posteo.net>
+% Copyright (C) 2013-2019 by Richard Grewe <r-g+tex@posteo.net>
 % -------------------------------------------------------
 % 
 % This file may be distributed and/or modified under the
@@ -22,7 +22,7 @@
 %<package>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package>\ProvidesPackage{typed-checklist}
 %<*package>
-    [2018/12/29 v1.9999 A package for layouting checklists]
+    [2019/01/06 v1.9999 A package for layouting checklists]
 %</package>
 %
 %<*driver>
@@ -598,10 +598,13 @@
 % i.e., the overlay between the checklist type's base symbol and the
 % entry status' symbol.
 %
-% \NiceDescribeMacro{\CheckListSigned}{\marg{text}}
+% \NiceDescribeMacro{\CheckListSigned}{\oarg{core}\marg{text}}
 % The macro displays \meta{text} in a right-aligned fashion with a
 % dotted leader to \meta{text}. This is similar to the display of page
 % numbers in some table of content formats.
+% The display takes place only if \meta{text} is non-empty. If
+% \meta{core} is given, \meta{core} is instead used in the emptiness
+% check.
 %
 % \NiceDescribeMacro{\CheckListDefaultLabel}{\marg{label}}
 % This macro sets \meta{label} as the label for the current entry, based
@@ -632,7 +635,7 @@
 % \CheckListDefineFieldFormat{enumlist}{status}{\normalmarginpar\marginnote
 %   {\CheckListStatusSymbol{#1}}}
 % \CheckListDefineFieldFormat{enumlist}{description+deadline+status}
-%   {#1\CheckListSigned{\CheckListDisplayDeadline{#3}{#2}}}
+%   {#1\CheckListSigned[#2]{\CheckListDisplayDeadline{#3}{#2}}}
 %
 % \begin{CheckList}[layout=enumlist]{Goal}
 %   \Goal[deadline=31.12.999]{achieved}{Y1K problems are resolved.}
@@ -1645,13 +1648,20 @@
 % \end{macro}
 %
 % \begin{macro}{\CheckListSigned}
-% The |\CheckListSigned|\marg{text} macro is taken from Knuth's \TeX book
-% with minor spacing modifications. See also
+% The |\CheckListSigned|\oarg{core}\marg{text} macro is taken from Knuth's \TeX
+% book with minor spacing modifications. See also
 % \url{http://tex.stackexchange.com/a/13761}.
+% The added optional \meta{core} is the reference for checks whether
+% \meta{text} is empty: In case of emptiness, nothing is shown by the
+% macro. If \meta{core} is omitted, \meta{text} itself is used in the
+% emptiness check.
 %    \begin{macrocode}
-\newcommand\CheckListSigned[1]{{%
-  \leavevmode\unskip\nobreak\hfil\penalty50\hskip0.25em
-  \hbox{}\nobreak\dotfill\hbox{#1}}}
+\newcommand\CheckListSigned{\@dblarg\tchklst@signed}
+\newcommand\tchklst@signed[2][]{%
+  \ifstrempty{#1}
+    {\nobreak\hfill\null}
+    {\leavevmode\unskip\nobreak\hfil\penalty50\hskip0.25em
+     \hbox{}\nobreak\dotfill\hbox{#2}}}
 %    \end{macrocode}
 % \end{macro}
 %
@@ -2108,8 +2118,7 @@
 % \meta{options}.
 %    \begin{macrocode}
 \CheckListDefineFieldFormat{list}{who}{%
-  \ifstrempty{#1}{\nobreak\hfill\null}{%
-    \CheckListSigned{\textit{(#1)}}}}
+  \CheckListSigned[#1]{\textit{(#1)}}}
 %    \end{macrocode}
 % Show the deadline of the entry in the margin, if the |deadline| option
 % is given in \meta{options}.
@@ -2162,7 +2171,7 @@
 \CheckListDefineFieldFormat{table}{status}{\CheckListStatusSymbol{#1}}
 \CheckListDefineFieldFormat{table}{label}%
   {\ifstrempty{#1}{}{%
-    \CheckListDefaultLabel{#1}%
+     \leavevmode\CheckListDefaultLabel{#1}%
      \mbox{\small(\ref{#1})}%
      \nobreak\hskip 0pt plus50pt\allowbreak
      \ \hskip 0pt plus-50pt\relax}}
