@@ -22,7 +22,7 @@
 %<package>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package>\ProvidesPackage{typed-checklist}
 %<*package>
-    [2019/01/06 v1.9999 A package for layouting checklists]
+    [2019/01/11 v1.99999 A package for layouting checklists]
 %</package>
 %
 %<*driver>
@@ -865,18 +865,25 @@
 % Note also that the |table| layout does not work within an |AsciiList|
 % environment.
 %
-% \subsection{Table Packages (tabu or xltabular)}\label{sec:tablepkg}
+% \subsection{Table Packages}\label{sec:tablepkg}
 %
 % The |table| layout by default uses the \pkgname{tabu} package for
 % layouting the tables. The default can be changed through the
 % |tablepkg| package option. The following values are available:
 % \begin{KeyValTable}{ValDesc}
+% \Row{val=ltablex,
+%   desc={This option uses the \pkgname{ltablex} package. }}
 % \Row{val=tabu,
 %   desc={This option uses the \pkgname{tabu} package, which is the
 %     default. That is, specifying this option does not change the
 %     package behavior.}}
+% \Row{val=tabularx,
+%   desc={This option uses the \pkgname{tabularx} package from the
+%     \hologo{LaTeX} core. When using this table type, keep in mind
+%     that |tabularx| tables must fit onto a single page.}}
 % \Row{val=xltabular,
-%   desc={This option uses the \pkgname{xltabular} package.}}
+%   desc={This option uses the \pkgname{xltabular} package, a successor
+%     of \pkgname{ltablex}.}}
 % \end{KeyValTable}
 %
 % Note:
@@ -2163,9 +2170,19 @@
 \CheckListDeclareLayout{table}%
   {newline,status,NC,label,description,NC,who,NC,deadline+status}%
   {%
-    \tchklst@@begintab
+    \tchklst@@begintab\hline
+%    \end{macrocode}
+% The |\tchklst@@newline| macro ensures that the |\\\hline| is only
+% produced after the first content row. Generally, |\tchklst@@newline|
+% (and the |newline| field) are used at the \emph{beginning} of each row
+% is due to checklist entry filters: This way of line breaking ensures
+% there is no spurious empty row at the end of tables whose last
+% checklist entry was filtered out.
+%    \begin{macrocode}
+    \gdef\tchklst@@newline{\\\hline\tchklst@@endhead
+      \gdef\tchklst@@newline{\\\hline}}%
     \textbf{Status} & \textbf{Description} &
-    \textbf{Who} & \textbf{Deadline}\endhead\hline}
+    \textbf{Who} & \textbf{Deadline}}
   {\tchklst@@endtab}
 \CheckListDefineFieldFormat{table}{newline}{\tchklst@@newline}
 \CheckListDefineFieldFormat{table}{status}{\CheckListStatusSymbol{#1}}
@@ -2193,17 +2210,8 @@
   \RequirePackage{longtable,tabu}}
 \newcommand\tchklst@begintab@tabu{%
   \tabulinesep=0.5ex\relax
-  \longtabu to \linewidth {|c|X|l|r|}%
-  \hline
-%    \end{macrocode}
-% The |\tchklst@@newline| macro ensures that the |\\\hline| is only
-% produced after the first content row. Generally, |\tchklst@@newline|
-% (and the |newline| field) are used at the \emph{beginning} of each row
-% is due to checklist entry filters: This way of line breaking ensures
-% there is no spurious empty row at the end of tables whose last
-% checklist entry was filtered out.
-%    \begin{macrocode}
-  \gdef\tchklst@@newline{\gdef\tchklst@@newline{\\\hline}}}
+  \def\tchklst@@endhead{\endhead}%
+  \longtabu to \linewidth {|c|X|l|r|}}
 \newcommand\tchklst@endtab@tabu{\tchklst@@newline\endlongtabu}
 %    \end{macrocode}
 % \end{macro}
@@ -2220,10 +2228,62 @@
   \RequirePackage{array,xltabular}}
 \newcommand\tchklst@begintab@xltabular{%
   \setlength{\extrarowheight}{0.5ex}%
-  \xltabular{\linewidth}{|c|X|l|r|}%
-  \hline
-  \gdef\tchklst@@newline{\gdef\tchklst@@newline{\\\hline}}}
-\newcommand\tchklst@endtab@xltabular{\tchklst@@newline\endxltabular}
+  \def\tchklst@@endhead{\endhead}%
+%    \end{macrocode}
+% The following modifies the internal end code of \pkgname{xltabular}
+% such that |\endxltabular| can be the first token as required while
+% there is still the horizontal line.
+%    \begin{macrocode}
+  \preto\XLT@ii@TX@endtabularx{%
+    \toks@\expandafter{\the\toks@\tchklst@@newline}}%
+  \xltabular{\linewidth}{|c|X|l|r|}}
+\newcommand\tchklst@endtab@xltabular{\endxltabular}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \begin{macro}{\tchklst@inittab@tabularx}
+% \begin{macro}{\tchklst@begintab@tabularx}
+% \begin{macro}{\tchklst@endtab@tabularx}
+% The following three macros specify how the \pkgname{tabularx} package
+% is initialized (i.e., how the package is loaded) and how table
+% environments are started and, respectively, ended.
+%    \begin{macrocode}
+\newcommand\tchklst@inittab@tabularx{%
+  \RequirePackage{array,tabularx}}
+\newcommand\tchklst@begintab@tabularx{%
+  \let\tchklst@@endhead\relax%
+  \setlength{\extrarowheight}{0.5ex}%
+%    \end{macrocode}
+% The following is analogous to its counterpart in |xltabular|.
+%    \begin{macrocode}
+  \preto\TX@endtabularx{\toks@\expandafter{\the\toks@\tchklst@@newline}}%
+  \tabularx{\linewidth}{|c|X|l|r|}}
+\newcommand\tchklst@endtab@tabularx{\endtabularx}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \begin{macro}{\tchklst@inittab@ltablex}
+% \begin{macro}{\tchklst@begintab@ltablex}
+% \begin{macro}{\tchklst@endtab@ltablex}
+% The following three macros specify how the \pkgname{ltablex} package
+% is initialized (i.e., how the package is loaded) and how table
+% environments are started and, respectively, ended.
+%    \begin{macrocode}
+\newcommand\tchklst@inittab@ltablex{\RequirePackage{ltablex}
+%    \end{macrocode}
+% The following fixes a bug in \pkgname{ltablex}, see
+% \url{https://tex.stackexchange.com/a/197000/132738}.
+%    \begin{macrocode}
+  \patchcmd{\TX@endtabularx}
+    {\end{tabularx}}
+    {\endtabularx\endgroup}
+    {}
+    {\PackageError{typed-checklist}{Could not apply code patch to
+       ltablex' package.}{}}}
+\let\tchklst@begintab@ltablex=\tchklst@begintab@tabularx
+\let\tchklst@endtab@ltablex=\tchklst@endtab@tabularx
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
@@ -2244,7 +2304,7 @@
 % \changes{v2.0}{2018/12/24}{Package option `tablepkg' added}
 %    \begin{macrocode}
 \define@choicekey[tchklst]{PackageOptions}{tablepkg}[\val]
-                 {tabu,xltabular}{%
+                 {ltablex,tabu,tabularx,xltabular}{%
   \letcs\tchklst@@inittab{tchklst@inittab@\val}%
   \letcs\tchklst@@begintab{tchklst@begintab@\val}%
   \letcs\tchklst@@endtab{tchklst@endtab@\val}%
