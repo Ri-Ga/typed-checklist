@@ -22,7 +22,7 @@
 %<package>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package>\ProvidesPackage{typed-checklist}
 %<*package>
-    [2019/01/11 v1.99999 A package for layouting checklists]
+    [2019/01/11 v2.0 A package for layouting checklists]
 %</package>
 %
 %<*driver>
@@ -935,6 +935,9 @@
 %   left margin on even pages. The default layout (|list|) does not look
 %   good then. This should be repaired. The same problem is with
 %   checklist entry labels, which are displayed on the other side.
+% \item In deadlines, the full year (including century) must be provided
+%   for the colored highlighting to work. Future versions could check
+%   for a two-digit year and automatically prepend "20" for the century.
 % \item The package automatically adds the pre-defined checklist types
 %   and states, which might have two draws for some users: firstly, this
 %   adds a dependency on symbol packages, which might not work well
