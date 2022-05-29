@@ -1,17 +1,17 @@
 % \iffalse meta-comment
 %
-% Copyright (C) 2013-2019 by Richard Grewe <r-g+tex@posteo.net>
+% Copyright (C) 2013-2022 by Richard Grewe <r-g+tex@posteo.net>
 % -------------------------------------------------------
 % 
 % This file may be distributed and/or modified under the
-% conditions of the LaTeX Project Public License, either version 1.2
+% conditions of the LaTeX Project Public License, either version 1.3c
 % of this license or (at your option) any later version.
-% The latest version of this license is in:
+% The latest version of this license is in
+%    https://www.latex-project.org/lppl.txt
+% and version 1.3c or later is part of all distributions of LaTeX
+% version 2008 or later.
 %
-%    http://www.latex-project.org/lppl.txt
-%
-% and version 1.2 or later is part of all distributions of LaTeX 
-% version 1999/12/01 or later.
+% This file has the LPPL maintenance status "maintained".
 %
 % \fi
 %
@@ -22,7 +22,7 @@
 %<package>\NeedsTeXFormat{LaTeX2e}[1999/12/01]
 %<package>\ProvidesPackage{typed-checklist}
 %<*package>
-    [2019/01/11 v2.0 A package for layouting checklists]
+    [2022/05/28 v2.1 A package for layouting checklists]
 %</package>
 %
 %<*driver>
@@ -865,16 +865,13 @@
 %
 % \subsection{Table Packages}\label{sec:tablepkg}
 %
-% The |table| layout by default uses the \pkgname{tabu} package for
+% \changes{v2.1}{2022/05/28}{Changed default table package to \pkgname{xltabular}, removed \pkgname{tabu}}
+% The |table| layout by default uses the \pkgname{xltabular} package for
 % layouting the tables. The default can be changed through the
 % |tablepkg| package option. The following values are available:
 % \begin{KeyValTable}{ValDesc}
 % \Row{val=ltablex,
 %   desc={This option uses the \pkgname{ltablex} package. }}
-% \Row{val=tabu,
-%   desc={This option uses the \pkgname{tabu} package, which is the
-%     default. That is, specifying this option does not change the
-%     package behavior.}}
 % \Row{val=tabularx,
 %   desc={This option uses the \pkgname{tabularx} package from the
 %     \hologo{LaTeX} core. When using this table type, keep in mind
@@ -883,10 +880,6 @@
 %   desc={This option uses the \pkgname{xltabular} package, a successor
 %     of \pkgname{ltablex}.}}
 % \end{KeyValTable}
-%
-% Note:
-% In the future, the default might change if the \pkgname{tabu} package
-% remains unmaintained.
 %
 % \section{Related Packages}
 %
@@ -2200,24 +2193,6 @@
 \CheckListDefineFieldFormat{table}{NC}{&}
 %    \end{macrocode}
 % The following macros define the package-specific table code.
-% \begin{macro}{\tchklst@inittab@tabu}
-% \begin{macro}{\tchklst@begintab@tabu}
-% \begin{macro}{\tchklst@endtab@tabu}
-% The following three macros specify how the \pkgname{tabu} package is
-% initialized (i.e., how the package is loaded) and how table
-% environments are started and, respectively, ended.
-%    \begin{macrocode}
-\newcommand\tchklst@inittab@tabu{%
-  \RequirePackage{longtable,tabu}}
-\newcommand\tchklst@begintab@tabu{%
-  \tabulinesep=0.5ex\relax
-  \def\tchklst@@endhead{\endhead}%
-  \longtabu to \linewidth {|c|X|l|r|}}
-\newcommand\tchklst@endtab@tabu{\tchklst@@newline\endlongtabu}
-%    \end{macrocode}
-% \end{macro}
-% \end{macro}
-% \end{macro}
 % \begin{macro}{\tchklst@inittab@xltabular}
 % \begin{macro}{\tchklst@begintab@xltabular}
 % \begin{macro}{\tchklst@endtab@xltabular}
@@ -2305,7 +2280,7 @@
 % \changes{v2.0}{2018/12/24}{Package option `tablepkg' added}
 %    \begin{macrocode}
 \define@choicekey[tchklst]{PackageOptions}{tablepkg}[\val]
-                 {ltablex,tabu,tabularx,xltabular}{%
+                 {ltablex,tabularx,xltabular}{%
   \letcs\tchklst@@inittab{tchklst@inittab@\val}%
   \letcs\tchklst@@begintab{tchklst@begintab@\val}%
   \letcs\tchklst@@endtab{tchklst@endtab@\val}%
@@ -2326,7 +2301,7 @@
 %    \begin{macrocode}
 \ExecuteOptionsX[tchklst]<PackageOptions,GlobalListOptions>{%
   withAsciilist=false,
-  tablepkg=tabu,
+  tablepkg=xltabular,
   onecounter=true,
   layout=list,
   input-dates=d.m.y,

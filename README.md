@@ -1,9 +1,9 @@
 The typed-checklist package
 ===========================
 
-Copyright (C) 2013-2019 Richard Grewe
+Copyright (C) 2013-2022 Richard Grewe
 
-Released under the [LaTeX Project Public License](http://www.latex-project.org/lppl/) version 1.2 or later
+Released under the [LaTeX Project Public License](http://www.latex-project.org/lppl/) version 1.3c or later
 
 ## Purpose
 
